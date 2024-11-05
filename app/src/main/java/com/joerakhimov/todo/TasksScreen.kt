@@ -1,6 +1,8 @@
 package com.joerakhimov.todo
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -21,13 +23,14 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.joerakhimov.todo.ui.theme.ToDoTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TasksScreen() {
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
-    val showSubtitle = scrollBehavior.state.collapsedFraction == 0f
+    val topAppBarExpanded = scrollBehavior.state.collapsedFraction == 0f
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
@@ -37,28 +40,42 @@ fun TasksScreen() {
                     titleContentColor = MaterialTheme.colorScheme.onPrimary,
                 ),
                 title = {
-                    Column {
-                        Text(
-                            stringResource(R.string.my_tasks),
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                            style = MaterialTheme.typography.titleLarge
-                        )
-                        if (showSubtitle) {
+                    Row {
+                        Column(Modifier.weight(1f)) {
                             Text(
-                                "Выполнено - 5", style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onTertiary
+                                stringResource(R.string.my_tasks),
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                style = MaterialTheme.typography.titleLarge
                             )
+                            if (topAppBarExpanded) {
+                                Text(
+                                    "Выполнено - 5", style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onTertiary
+                                )
+                            }
+                        }
+                        if (topAppBarExpanded) {
+                            IconButton(onClick = { /* do something */ }, modifier = Modifier.padding(4.dp)) {
+                                Icon(
+                                    imageVector = Icons.Filled.Visibility,
+                                    contentDescription = "Localized description",
+                                    tint = MaterialTheme.colorScheme.primary
+                                )
+                            }
                         }
                     }
+
                 },
                 actions = {
-                    IconButton(onClick = { /* do something */ }) {
-                        Icon(
-                            imageVector = Icons.Filled.Visibility,
-                            contentDescription = "Localized description",
-                            tint = MaterialTheme.colorScheme.primary
-                        )
+                    if (!topAppBarExpanded) {
+                        IconButton(onClick = { /* do something */ }) {
+                            Icon(
+                                imageVector = Icons.Filled.Visibility,
+                                contentDescription = "Localized description",
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                        }
                     }
                 },
                 scrollBehavior = scrollBehavior
