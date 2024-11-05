@@ -22,10 +22,10 @@ private val DarkColorScheme = darkColorScheme(
     onTertiary = LabelTertiaryDark,
 
     surface = BackSecondaryDark,
-    onSurface = LabelTertiaryDark,
+    onSurface = SupportSeparatorDark,
 
     error = ColorRedDark,
-    onError = ColorRedDark
+    onError = ColorRedDark,
 )
 
 private val LightColorScheme = lightColorScheme(
@@ -39,7 +39,7 @@ private val LightColorScheme = lightColorScheme(
     onTertiary = LabelTertiaryLight,
 
     surface = BackSecondaryLight,
-    onSurface = LabelTertiaryLight,
+    onSurface = SupportSeparatorLight,
 
     error = ColorRedLight,
     onError = ColorRedLight,
@@ -59,7 +59,7 @@ private val LightColorScheme = lightColorScheme(
 fun ToDoTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
+    dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {
