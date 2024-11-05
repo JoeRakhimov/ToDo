@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">ToDo</string>
     <string name="my_tasks">Мои дела</string>
+    <string name="completed">Выполнено - %1$s</string>
 </resources>

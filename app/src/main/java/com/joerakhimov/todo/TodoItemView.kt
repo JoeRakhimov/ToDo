@@ -1,6 +1,7 @@
 package com.joerakhimov.todo
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
@@ -26,7 +27,7 @@ import java.util.Locale
 
 @Composable
 fun TodoItemView(todoItem: TodoItem) {
-    Row {
+    Row(Modifier.background(MaterialTheme.colorScheme.surface)) {
         Checkbox(
             checked = todoItem.isCompleted,
             onCheckedChange = {},
