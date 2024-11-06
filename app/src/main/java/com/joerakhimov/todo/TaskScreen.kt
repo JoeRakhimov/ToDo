@@ -20,6 +20,9 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -28,10 +31,13 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -51,9 +57,8 @@ import java.time.LocalDate
 fun TaskScreen(onExit: () -> Unit, onSave: () -> Unit) {
     var importance by remember { mutableStateOf("Нет") }
     var expanded by remember { mutableStateOf(false) }
-    var deadlineEnabled by remember { mutableStateOf(false) }
     var deadlineDate by remember { mutableStateOf<LocalDate?>(null) }
-    var showImportanceDialog by remember { mutableStateOf(false) }
+    var deadlineEnabled by remember { mutableStateOf(false) }
     var showDatePickerDialog by remember { mutableStateOf(false) }
 
     // Top App Bar
@@ -173,94 +178,110 @@ fun TaskScreen(onExit: () -> Unit, onSave: () -> Unit) {
                     }
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Divider(
+                    color = MaterialTheme.colorScheme.onSurface,
+                    thickness = 0.5.dp
+                )
 
-                // Deadline and Switch
-                Text("Deadline", style = MaterialTheme.typography.bodyLarge)
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("Enable Deadline", style = MaterialTheme.typography.bodyMedium)
-                    Switch(
-                        checked = deadlineEnabled,
-                        onCheckedChange = { isChecked ->
-                            deadlineEnabled = isChecked
-                            if (!isChecked) deadlineDate = null
+                Box {
+
+
+                    Row(
+                        Modifier
+                            .height(72.dp)
+                            .fillMaxWidth()
+                            .clickable { showDatePickerDialog = true },
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(Modifier.weight(1f)) {
+                            Text(
+                                stringResource(R.string.finish_till),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onPrimary
+                            )
+                            if (deadlineDate != null) {
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text(
+                                    deadlineDate.toString(),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                            }
                         }
-                    )
+                        Switch(
+                            checked = deadlineEnabled,
+                            onCheckedChange = {
+                                deadlineEnabled = it
+                                if (deadlineEnabled) {
+                                    showDatePickerDialog = true
+                                } else {
+                                    deadlineDate = null
+                                }
+                            },
+                            colors = SwitchDefaults.colors(
+                                checkedThumbColor = MaterialTheme.colorScheme.primary,
+//                            uncheckedThumbColor = Color.Gray,
+                                checkedTrackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.3f),
+//                            uncheckedTrackColor = Color.LightGray
+                            )
+                        )
+                    }
+
+                    if (showDatePickerDialog) {
+                        val datePickerState = rememberDatePickerState()
+                        DatePickerDialog(
+                            onDismissRequest = { },
+                            confirmButton = {
+                                TextButton(onClick = {
+                                    deadlineDate = datePickerState.selectedDateMillis?.let {
+                                        LocalDate.ofEpochDay(it / (24 * 60 * 60 * 1000))
+                                    }
+                                    showDatePickerDialog = false
+                                }) {
+                                    Text(stringResource(R.string.Done))
+                                }
+                            },
+                            dismissButton = {
+                                TextButton(onClick = {
+                                    showDatePickerDialog = false
+                                }) {
+                                    Text(stringResource(R.string.Cancel))
+                                }
+                            },
+                            modifier = Modifier.background(Color.Blue)
+                        ) {
+                            DatePicker(state = datePickerState)
+                        }
+                    }
+
                 }
 
-                // Deadline Calendar Dialog
-                if (deadlineEnabled && showDatePickerDialog) {
-                    DatePickerDialog(
-                        initialDate = LocalDate.now(),
-                        onDateSelected = { date ->
-                            deadlineDate = date
-                            showDatePickerDialog = false
-                        },
-                        onDismiss = { showDatePickerDialog = false }
-                    )
-                }
+                Divider(
+                    color = MaterialTheme.colorScheme.onSurface,
+                    thickness = 0.5.dp
+                )
 
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // Delete Button
-                IconButton(
-                    onClick = { /* Handle delete logic */ },
-                    modifier = Modifier.padding(8.dp)
+                Row(
+                    Modifier
+                        .height(72.dp)
+                        .fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(Icons.Default.Delete, contentDescription = "Delete")
+                    Icon(
+                        Icons.Default.Delete,
+                        contentDescription = "Delete",
+                        tint = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.height(18.dp).padding(end = 12.dp),
+                    )
+                    Text(
+                        stringResource(R.string.delete),
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
                 }
             }
         }
     )
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun ImportanceDialog(onDismiss: () -> Unit, onImportanceSelected: (String) -> Unit) {
-    val options = listOf("Urgent", "Normal", "Low")
-    var selectedImportance by remember { mutableStateOf(options[1]) }
-
-//    AlertDialog(
-//        onDismissRequest = onDismiss,
-//        title = { Text("Select Importance") },
-//        buttons = {
-//            Column(modifier = Modifier.padding(16.dp)) {
-//                options.forEach { importance ->
-//                    TextButton(onClick = { onImportanceSelected(importance) }) {
-//                        Text(importance)
-//                    }
-//                }
-//            }
-//        }
-//    )
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun DatePickerDialog(
-    initialDate: LocalDate,
-    onDateSelected: (LocalDate) -> Unit,
-    onDismiss: () -> Unit
-) {
-    val datePicker = remember { LocalDate.now() }
-
-    // Assuming you have a date picker available here
-    // Use an existing date picker composable or integrate with a library
-
-//    AlertDialog(
-//        onDismissRequest = onDismiss,
-//        title = { Text("Pick a Date") },
-//        buttons = {
-//            Column(modifier = Modifier.padding(16.dp)) {
-//                // Add date picker UI here (use a date picker library or create your own)
-//                TextButton(onClick = {
-//                    onDateSelected(datePicker)
-//                }) {
-//                    Text("Set Date")
-//                }
-//            }
-//        }
-//    )
 }
 
 

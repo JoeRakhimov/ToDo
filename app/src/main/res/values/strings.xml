@@ -6,4 +6,8 @@
     <string name="save">Сохранить</string>
     <string name="what_to_do">Что надо сделать...</string>
     <string name="importance">Важность</string>
+    <string name="finish_till">Сделать до</string>
+    <string name="Done">Готово</string>
+    <string name="Cancel">Отмена</string>
+    <string name="delete">Удалить</string>
 </resources>
