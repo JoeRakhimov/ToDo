@@ -42,7 +42,10 @@ import com.joerakhimov.todo.ui.theme.ToDoTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TasksScreen(onAddTaskButtonClick: () -> Unit) {
+fun TasksScreen(
+    onAddTaskButtonClick: () -> Unit,
+    onTaskClick: (taskId: String) -> Unit
+) {
 
     val viewModel: TodoViewModel = viewModel()
     val todoItems by viewModel.todoItems.collectAsState()
@@ -145,7 +148,9 @@ fun TasksScreen(onAddTaskButtonClick: () -> Unit) {
                     if (completedTasksIncluded) todoItems
                     else todoItems.filter { !it.isCompleted }
                 items(tasksToShow) { item ->
-                    TodoItemView(todoItem = item)
+                    TodoItemView(todoItem = item){
+                        onTaskClick(it)
+                    }
                 }
                 item {
                     Box(
@@ -169,6 +174,6 @@ fun TasksScreen(onAddTaskButtonClick: () -> Unit) {
 @Composable
 fun TasksScreenPreview() {
     ToDoTheme(dynamicColor = false) {
-        TasksScreen({})
+        TasksScreen({}, {})
     }
 }

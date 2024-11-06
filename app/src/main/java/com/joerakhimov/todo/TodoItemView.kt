@@ -1,7 +1,7 @@
 package com.joerakhimov.todo
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
@@ -26,8 +26,11 @@ import java.util.Date
 import java.util.Locale
 
 @Composable
-fun TodoItemView(todoItem: TodoItem) {
-    Row {
+fun TodoItemView(
+    todoItem: TodoItem,
+    onClick: (taskId: String) -> Unit = {},
+) {
+    Row(Modifier.clickable { onClick(todoItem.id) }) {
         Checkbox(
             checked = todoItem.isCompleted,
             onCheckedChange = {},

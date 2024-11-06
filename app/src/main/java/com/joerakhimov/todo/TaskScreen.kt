@@ -52,9 +52,11 @@ import androidx.compose.ui.unit.dp
 import com.joerakhimov.todo.ui.theme.ToDoTheme
 import java.time.LocalDate
 
+fun String?.isNewTaskId() = this == DEFAULT_TASK_ID
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TaskScreen(onExit: () -> Unit, onSave: () -> Unit) {
+fun TaskScreen(taskId: String, onExit: () -> Unit, onSave: () -> Unit) {
     var importance by remember { mutableStateOf("Нет") }
     var expanded by remember { mutableStateOf(false) }
     var deadlineDate by remember { mutableStateOf<LocalDate?>(null) }
@@ -264,18 +266,30 @@ fun TaskScreen(onExit: () -> Unit, onSave: () -> Unit) {
                 Row(
                     Modifier
                         .height(72.dp)
-                        .fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
+                        .fillMaxWidth()
+                        .clickable {
+                            if (!taskId.isNewTaskId()) {
+
+                            }
+                        },
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
+                    val color = if (taskId.isNewTaskId()){
+                        MaterialTheme.colorScheme.onSurface
+                    } else {
+                        MaterialTheme.colorScheme.error
+                    }
                     Icon(
                         Icons.Default.Delete,
                         contentDescription = "Delete",
-                        tint = MaterialTheme.colorScheme.error,
-                        modifier = Modifier.height(18.dp).padding(end = 12.dp),
+                        tint = color,
+                        modifier = Modifier
+                            .height(18.dp)
+                            .padding(end = 12.dp),
                     )
                     Text(
                         stringResource(R.string.delete),
-                        color = MaterialTheme.colorScheme.error,
+                        color = color,
                         style = MaterialTheme.typography.bodyMedium
                     )
                 }
@@ -289,6 +303,6 @@ fun TaskScreen(onExit: () -> Unit, onSave: () -> Unit) {
 @Composable
 fun TaskScreenPreview() {
     ToDoTheme(dynamicColor = false) {
-        TaskScreen({}, {})
+        TaskScreen(DEFAULT_TASK_ID, {}, {})
     }
 }
