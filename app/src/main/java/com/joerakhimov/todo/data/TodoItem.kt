@@ -7,7 +7,7 @@ data class TodoItem(
     var text: String, // описания задания
     var importance: Importance, // важность дела
     var deadline: Date?, // дедлайн
-    val isCompleted: Boolean, // флаг выполнения задания
+    var isCompleted: Boolean, // флаг выполнения задания
     val createdAt: Date, // дата создания задания
     var modifiedAt: Date? // дата изменения задания
 )

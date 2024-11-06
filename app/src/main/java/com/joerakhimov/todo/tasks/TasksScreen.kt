@@ -31,6 +31,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -51,18 +52,25 @@ fun TasksScreen(
     onAddNewTaskButtonClick: () -> Unit,
     onTaskClick: (taskId: String) -> Unit
 ) {
-    val topAppBarScrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
+    val topAppBarScrollBehavior =
+        TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
     val todoItems by remember { mutableStateOf(repository.getTodoItems()) }
-    var showCompletedTodoItems by remember { mutableStateOf(false) }
+    var areCompletedTasksAreShown by rememberSaveable { mutableStateOf(false) }
 
     Scaffold(
         modifier = Modifier.nestedScroll(topAppBarScrollBehavior.nestedScrollConnection),
-        topBar = { TasksTopAppBar(topAppBarScrollBehavior, todoItems, showCompletedTodoItems, onToggleShowCompleted = { showCompletedTodoItems = !showCompletedTodoItems }) },
+        topBar = {
+            TasksTopAppBar(
+                topAppBarScrollBehavior,
+                todoItems,
+                areCompletedTasksAreShown,
+                onToggleShowCompleted = { areCompletedTasksAreShown = !areCompletedTasksAreShown })
+        },
         floatingActionButton = { AddTaskButton(onClick = onAddNewTaskButtonClick) },
     ) { paddingValues ->
         TaskList(
             todoItems = todoItems,
-            showCompletedTasks = showCompletedTodoItems,
+            showCompletedTasks = areCompletedTasksAreShown,
             onTaskClick = onTaskClick,
             paddingValues = paddingValues,
             onAddNewTaskButtonClick = onAddNewTaskButtonClick
@@ -100,14 +108,16 @@ fun TasksTopAppBar(
                         )
                         if (topAppBarExpanded) {
                             Text(
-                                stringResource(R.string.completed, todoItems.count { it.isCompleted }),
+                                stringResource(
+                                    R.string.completed,
+                                    todoItems.count { it.isCompleted }),
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onTertiary
                             )
                         }
                     }
                     if (topAppBarExpanded) {
-                        IconButton(onClick = onToggleShowCompleted) {
+                        IconButton(onClick = onToggleShowCompleted, Modifier.padding(end = 8.dp)) {
                             Icon(
                                 imageVector = if (showCompletedTasks) Icons.Filled.VisibilityOff else Icons.Filled.Visibility,
                                 contentDescription = stringResource(R.string.toggle_completed),
@@ -167,9 +177,13 @@ fun TaskList(
         LazyColumn {
             item { Spacer(modifier = Modifier.padding(top = 16.dp)) }
 
-            val filteredItems = if (showCompletedTasks) todoItems else todoItems.filter { !it.isCompleted }
+            val filteredItems =
+                if (showCompletedTasks) todoItems else todoItems.filter { !it.isCompleted }
             items(filteredItems) { item ->
-                TodoItemView(todoItem = item) { onTaskClick(it) }
+                TodoItemView(
+                    todoItem = item,
+                    onClick = { onTaskClick(it) }
+                )
             }
 
             item {
