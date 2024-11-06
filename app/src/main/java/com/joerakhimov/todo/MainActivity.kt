@@ -19,26 +19,8 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             ToDoTheme {
-                val viewModel: TodoViewModel = viewModel()
-                val todoItems by viewModel.todoItems.collectAsState()
-                TasksScreen(todoItems)
+                AppNavigation()
             }
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    ToDoTheme {
-        Greeting("Android")
     }
 }

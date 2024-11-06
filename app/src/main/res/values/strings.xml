@@ -3,4 +3,5 @@
     <string name="my_tasks">Мои дела</string>
     <string name="completed">Выполнено - %1$s</string>
     <string name="new_">Новое</string>
+    <string name="save">Сохранить</string>
 </resources>

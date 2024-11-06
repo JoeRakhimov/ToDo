@@ -25,6 +25,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -36,11 +37,15 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.joerakhimov.todo.ui.theme.ToDoTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TasksScreen(todoItems: List<TodoItem>) {
+fun TasksScreen(onAddTaskButtonClick: () -> Unit) {
+
+    val viewModel: TodoViewModel = viewModel()
+    val todoItems by viewModel.todoItems.collectAsState()
 
     var completedTasksIncluded by remember { mutableStateOf(false) }
     val scrollBehavior =
@@ -110,7 +115,7 @@ fun TasksScreen(todoItems: List<TodoItem>) {
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { /* Handle FAB click */ },
+                onClick = { onAddTaskButtonClick() },
                 containerColor = MaterialTheme.colorScheme.primary,
                 shape = MaterialTheme.shapes.extraLarge,
             ) {
@@ -128,7 +133,7 @@ fun TasksScreen(todoItems: List<TodoItem>) {
                 .padding(horizontal = 16.dp),
             color = MaterialTheme.colorScheme.surface,
             shadowElevation = 4.dp,
-            shape = RoundedCornerShape(8.dp)
+            shape = RoundedCornerShape(8.dp),
         ) {
             LazyColumn {
 
@@ -162,9 +167,8 @@ fun TasksScreen(todoItems: List<TodoItem>) {
 
 @Preview(showBackground = true)
 @Composable
-fun PreviewCollapsingToolbarExample() {
-    val todoItems = TodoItemsRepository().getTodoItems()
+fun TasksScreenPreview() {
     ToDoTheme(dynamicColor = false) {
-        TasksScreen(todoItems)
+        TasksScreen({})
     }
 }
