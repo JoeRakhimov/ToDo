@@ -41,8 +41,7 @@ fun AppNavigation(
             TaskScreen(
                 repository,
                 taskId = DEFAULT_TASK_ID, // Null ID for new task
-                onExit = { navController.popBackStack() },
-                onSave = {  }
+                onExit = { navController.popBackStack() }
             )
         }
         // Route for editing an existing task
@@ -54,8 +53,7 @@ fun AppNavigation(
             TaskScreen(
                 repository,
                 taskId = taskId,
-                onExit = { navController.popBackStack() },
-                onSave = {  }
+                onExit = { navController.popBackStack() }
             )
         }
     }
