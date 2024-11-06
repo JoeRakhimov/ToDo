@@ -4,4 +4,6 @@
     <string name="completed">Выполнено - %1$s</string>
     <string name="new_">Новое</string>
     <string name="save">Сохранить</string>
+    <string name="what_to_do">Что надо сделать...</string>
+    <string name="importance">Важность</string>
 </resources>
