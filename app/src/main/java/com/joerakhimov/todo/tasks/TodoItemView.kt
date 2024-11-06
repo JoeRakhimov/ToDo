@@ -1,5 +1,6 @@
 package com.joerakhimov.todo.tasks
 
+import android.content.res.Configuration
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -125,7 +126,6 @@ private fun formatDate(date: Date): String {
     return formatter.format(date)
 }
 
-
 @Preview(showBackground = true)
 @Composable
 fun PreviewTodoItemView1() {
@@ -141,12 +141,45 @@ fun PreviewTodoItemView1() {
     ToDoTheme(dynamicColor = false) {
         TodoItemView(todoItem = sampleTodoItem)
     }
+}
 
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+fun PreviewTodoItemView1Dark() {
+    val sampleTodoItem = TodoItem(
+        "todo_1",
+        "Buy grocery",
+        Importance.NORMAL,
+        null,
+        false,
+        Date(),
+        null
+    )
+    ToDoTheme(dynamicColor = false) {
+        TodoItemView(todoItem = sampleTodoItem)
+    }
 }
 
 @Preview(showBackground = true)
 @Composable
 fun PreviewTodoItemView2() {
+    val sampleTodoItem2 = TodoItem(
+        "todo_2",
+        "Купить что-то, где-то, зачем-то, но зачем не очень понятно, но точно чтобы показать как обрезается текст когда текст слишком длинный",
+        Importance.NORMAL,
+        null,
+        false,
+        Date(),
+        null
+    )
+    ToDoTheme(dynamicColor = false) {
+        TodoItemView(todoItem = sampleTodoItem2)
+    }
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+fun PreviewTodoItemView2Dark() {
     val sampleTodoItem2 = TodoItem(
         "todo_2",
         "Купить что-то, где-то, зачем-то, но зачем не очень понятно, но точно чтобы показать как обрезается текст когда текст слишком длинный",
@@ -178,9 +211,43 @@ fun PreviewTodoItemView3() {
     }
 }
 
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+fun PreviewTodoItemView3Dark() {
+    val sampleTodoItem2 = TodoItem(
+        "todo_3",
+        "Купить что-то",
+        Importance.LOW,
+        null,
+        false,
+        Date(),
+        null
+    )
+    ToDoTheme(dynamicColor = false) {
+        TodoItemView(todoItem = sampleTodoItem2)
+    }
+}
+
 @Preview(showBackground = true)
 @Composable
 fun PreviewTodoItemView4() {
+    val sampleTodoItem2 = TodoItem(
+        "todo_4",
+        "Купить что-то, где-то, зачем-то, но зачем не очень понятно, но точно чтобы показать как обрезается текст когда текст слишком длинный",
+        Importance.URGENT,
+        null,
+        false,
+        Date(),
+        null
+    )
+    ToDoTheme(dynamicColor = false) {
+        TodoItemView(todoItem = sampleTodoItem2)
+    }
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+fun PreviewTodoItemView4Dark() {
     val sampleTodoItem2 = TodoItem(
         "todo_4",
         "Купить что-то, где-то, зачем-то, но зачем не очень понятно, но точно чтобы показать как обрезается текст когда текст слишком длинный",
@@ -212,6 +279,23 @@ fun PreviewTodoItemView5() {
     }
 }
 
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+fun PreviewTodoItemView5Dark() {
+    val sampleTodoItem2 = TodoItem(
+        "todo_5",
+        "Купить что-то",
+        Importance.NORMAL,
+        null,
+        true,
+        Date(),
+        null
+    )
+    ToDoTheme(dynamicColor = false) {
+        TodoItemView(todoItem = sampleTodoItem2)
+    }
+}
+
 @Preview(showBackground = true)
 @Composable
 fun PreviewTodoItemView6() {
@@ -228,4 +312,22 @@ fun PreviewTodoItemView6() {
         TodoItemView(todoItem = sampleTodoItem2)
     }
 }
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+fun PreviewTodoItemView6Dark() {
+    val sampleTodoItem2 = TodoItem(
+        "todo_6",
+        "Купить что-то",
+        Importance.NORMAL,
+        Date(),
+        false,
+        Date(),
+        null
+    )
+    ToDoTheme(dynamicColor = false) {
+        TodoItemView(todoItem = sampleTodoItem2)
+    }
+}
+
 

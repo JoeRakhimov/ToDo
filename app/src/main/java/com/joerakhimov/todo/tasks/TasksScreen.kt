@@ -1,5 +1,6 @@
 package com.joerakhimov.todo.tasks
 
+import android.content.res.Configuration
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -207,6 +208,14 @@ fun TaskList(
 @Preview(showBackground = true)
 @Composable
 fun TasksScreenPreview() {
+    ToDoTheme(dynamicColor = false) {
+        TasksScreen(TodoItemsRepository(), {}, {})
+    }
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+fun TasksScreenPreviewDark() {
     ToDoTheme(dynamicColor = false) {
         TasksScreen(TodoItemsRepository(), {}, {})
     }

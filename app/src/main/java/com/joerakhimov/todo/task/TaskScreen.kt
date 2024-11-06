@@ -1,6 +1,7 @@
 package com.joerakhimov.todo.task
 
 import android.content.Context
+import android.content.res.Configuration
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -463,6 +464,14 @@ private fun CloseIcon() {
 @Preview(showBackground = true)
 @Composable
 fun TaskScreenPreview() {
+    ToDoTheme(dynamicColor = false) {
+        TaskScreen(TodoItemsRepository(), DEFAULT_TASK_ID, {})
+    }
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+fun TaskScreenPreviewDark() {
     ToDoTheme(dynamicColor = false) {
         TaskScreen(TodoItemsRepository(), DEFAULT_TASK_ID, {})
     }
