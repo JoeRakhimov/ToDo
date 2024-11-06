@@ -1,4 +1,4 @@
-package com.joerakhimov.todo
+package com.joerakhimov.todo.tasks
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -20,6 +20,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.joerakhimov.todo.data.Importance
+import com.joerakhimov.todo.R
+import com.joerakhimov.todo.data.TodoItem
 import com.joerakhimov.todo.ui.theme.ToDoTheme
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -85,7 +88,7 @@ fun TodoItemView(
             if (!todoItem.isCompleted && todoItem.deadline != null) {
                 Text(
                     text = SimpleDateFormat(
-                        "dd.MM.yyyy HH:mm",
+                        "dd.MM.yyyy",
                         Locale.getDefault()
                     ).format(todoItem.deadline),
                     style = MaterialTheme.typography.labelSmall,

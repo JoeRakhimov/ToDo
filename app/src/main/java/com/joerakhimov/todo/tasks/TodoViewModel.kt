@@ -1,6 +1,8 @@
-package com.joerakhimov.todo
+package com.joerakhimov.todo.tasks
 
 import androidx.lifecycle.ViewModel
+import com.joerakhimov.todo.data.TodoItem
+import com.joerakhimov.todo.data.TodoItemsRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 

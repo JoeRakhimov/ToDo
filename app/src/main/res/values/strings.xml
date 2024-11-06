@@ -10,4 +10,7 @@
     <string name="Done">Готово</string>
     <string name="Cancel">Отмена</string>
     <string name="delete">Удалить</string>
+    <string name="low">Низкий</string>
+    <string name="normal">Нет</string>
+    <string name="urgent">Высокий</string>
 </resources>

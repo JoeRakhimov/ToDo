@@ -1,4 +1,4 @@
-package com.joerakhimov.todo
+package com.joerakhimov.todo.task
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -49,15 +49,21 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.joerakhimov.todo.navigation.DEFAULT_TASK_ID
+import com.joerakhimov.todo.R
+import com.joerakhimov.todo.data.Importance
 import com.joerakhimov.todo.ui.theme.ToDoTheme
 import java.time.LocalDate
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 fun String?.isNewTaskId() = this == DEFAULT_TASK_ID
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TaskScreen(taskId: String, onExit: () -> Unit, onSave: () -> Unit) {
-    var importance by remember { mutableStateOf("Нет") }
+    var importance by remember { mutableStateOf(Importance.NORMAL) }
     var expanded by remember { mutableStateOf(false) }
     var deadlineDate by remember { mutableStateOf<LocalDate?>(null) }
     var deadlineEnabled by remember { mutableStateOf(false) }
@@ -140,7 +146,11 @@ fun TaskScreen(taskId: String, onExit: () -> Unit, onSave: () -> Unit) {
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
-                            importance,
+                            when (importance) {
+                                Importance.LOW -> stringResource(R.string.low)
+                                Importance.NORMAL -> stringResource(R.string.normal)
+                                Importance.URGENT -> stringResource(R.string.urgent)
+                            },
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onTertiary
                         )
@@ -153,28 +163,31 @@ fun TaskScreen(taskId: String, onExit: () -> Unit, onSave: () -> Unit) {
                     ) {
                         DropdownMenuItem(text = {
                             Text(
-                                "Нет",
+                                stringResource(R.string.normal),
                                 color = MaterialTheme.colorScheme.onPrimary
                             )
                         }, onClick = {
-                            importance = "Нет"
+                            importance = Importance.NORMAL
                             expanded = false
                         })
                         DropdownMenuItem(text = {
                             Text(
-                                "Низкий",
+                                stringResource(R.string.low),
                                 color = MaterialTheme.colorScheme.onPrimary
                             )
                         }, onClick = {
-                            importance = "Низкий"
+                            importance = Importance.LOW
                             expanded = false
                         })
                         DropdownMenuItem(text = {
                             Row {
-                                Text("!! Высокий", color = MaterialTheme.colorScheme.onError)
+                                Text(
+                                    "!! ${stringResource(R.string.urgent)}",
+                                    color = MaterialTheme.colorScheme.onError
+                                )
                             }
                         }, onClick = {
-                            importance = "Высокий"
+                            importance = Importance.URGENT
                             expanded = false
                         })
                     }
@@ -204,7 +217,12 @@ fun TaskScreen(taskId: String, onExit: () -> Unit, onSave: () -> Unit) {
                             if (deadlineDate != null) {
                                 Spacer(modifier = Modifier.height(4.dp))
                                 Text(
-                                    deadlineDate.toString(),
+                                    deadlineDate?.format(
+                                        DateTimeFormatter.ofPattern(
+                                            "dd.MM.yyyy",
+                                            Locale.getDefault()
+                                        )
+                                    ) ?: "",
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = MaterialTheme.colorScheme.primary
                                 )
@@ -221,22 +239,34 @@ fun TaskScreen(taskId: String, onExit: () -> Unit, onSave: () -> Unit) {
                                 }
                             },
                             colors = SwitchDefaults.colors(
-                                checkedThumbColor = MaterialTheme.colorScheme.primary,
-//                            uncheckedThumbColor = Color.Gray,
+                                uncheckedTrackColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f),
+                                uncheckedThumbColor = MaterialTheme.colorScheme.onSurface,
+                                uncheckedBorderColor = MaterialTheme.colorScheme.onSurface,
                                 checkedTrackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.3f),
-//                            uncheckedTrackColor = Color.LightGray
+                                checkedThumbColor = MaterialTheme.colorScheme.primary,
                             )
                         )
                     }
 
                     if (showDatePickerDialog) {
-                        val datePickerState = rememberDatePickerState()
+                        // Convert deadlineDate to milliseconds in UTC time zone
+                        val initialDateInMillis =
+                            deadlineDate?.atStartOfDay(ZoneOffset.UTC)?.toInstant()?.toEpochMilli()
+
+                        // Initialize DatePickerState with the corrected initial date in milliseconds
+                        val datePickerState = rememberDatePickerState(
+                            initialSelectedDateMillis = initialDateInMillis
+                        )
+
                         DatePickerDialog(
                             onDismissRequest = { },
                             confirmButton = {
                                 TextButton(onClick = {
-                                    deadlineDate = datePickerState.selectedDateMillis?.let {
-                                        LocalDate.ofEpochDay(it / (24 * 60 * 60 * 1000))
+                                    datePickerState.selectedDateMillis?.let { selectedDateMillis ->
+                                        // Convert the selected milliseconds to LocalDate in UTC
+                                        deadlineDate =
+                                            LocalDate.ofEpochDay(selectedDateMillis / (24 * 60 * 60 * 1000))
+                                        deadlineEnabled = true
                                     }
                                     showDatePickerDialog = false
                                 }) {
@@ -246,16 +276,18 @@ fun TaskScreen(taskId: String, onExit: () -> Unit, onSave: () -> Unit) {
                             dismissButton = {
                                 TextButton(onClick = {
                                     showDatePickerDialog = false
+                                    deadlineEnabled = deadlineDate != null
                                 }) {
                                     Text(stringResource(R.string.Cancel))
                                 }
                             },
-                            modifier = Modifier.background(Color.Blue)
                         ) {
-                            DatePicker(state = datePickerState)
+                            DatePicker(
+                                state = datePickerState,
+                                modifier = Modifier.background(MaterialTheme.colorScheme.surface)
+                            )
                         }
                     }
-
                 }
 
                 Divider(
@@ -274,7 +306,7 @@ fun TaskScreen(taskId: String, onExit: () -> Unit, onSave: () -> Unit) {
                         },
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    val color = if (taskId.isNewTaskId()){
+                    val color = if (taskId.isNewTaskId()) {
                         MaterialTheme.colorScheme.onSurface
                     } else {
                         MaterialTheme.colorScheme.error

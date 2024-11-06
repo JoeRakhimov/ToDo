@@ -1,5 +1,6 @@
-package com.joerakhimov.todo
+package com.joerakhimov.todo.tasks
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -38,6 +39,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.joerakhimov.todo.R
 import com.joerakhimov.todo.ui.theme.ToDoTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -156,6 +158,7 @@ fun TasksScreen(
                     Box(
                         Modifier
                             .fillMaxWidth()
+                            .clickable { onAddTaskButtonClick() }
                             .padding(start = 56.dp, top = 14.dp, bottom = 24.dp)
                     ) {
                         Text(

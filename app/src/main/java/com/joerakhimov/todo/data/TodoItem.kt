@@ -1,4 +1,4 @@
-package com.joerakhimov.todo
+package com.joerakhimov.todo.data
 
 import java.util.Date
 

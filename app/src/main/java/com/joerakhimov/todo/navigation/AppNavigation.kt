@@ -1,10 +1,12 @@
-package com.joerakhimov.todo
+package com.joerakhimov.todo.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.joerakhimov.todo.task.TaskScreen
+import com.joerakhimov.todo.tasks.TasksScreen
 
 const val KEY_TASK_ID = "taskId"
 const val DEFAULT_TASK_ID = ""
