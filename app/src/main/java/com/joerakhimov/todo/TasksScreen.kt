@@ -1,9 +1,10 @@
 package com.joerakhimov.todo
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -12,7 +13,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
-import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -122,22 +122,37 @@ fun TasksScreen(todoItems: List<TodoItem>) {
             }
         },
     ) { paddingValues ->
-        Box(
-            Modifier
-                .padding(8.dp)
-                .background(MaterialTheme.colorScheme.surface)
+        Surface(
+            modifier = Modifier
+                .padding(paddingValues)
+                .padding(horizontal = 16.dp),
+            color = MaterialTheme.colorScheme.surface,
+            shadowElevation = 4.dp,
+            shape = RoundedCornerShape(8.dp)
         ) {
-            Card(
-                shape = RoundedCornerShape(8.dp)
-            ) {
-                LazyColumn(
-                    contentPadding = paddingValues
-                ) {
-                    val tasksToShow =
-                        if (completedTasksIncluded) todoItems
-                        else todoItems.filter { !it.isCompleted }
-                    items(tasksToShow) { item ->
-                        TodoItemView(todoItem = item)
+            LazyColumn {
+
+                item {
+                    Spacer(modifier = Modifier.padding(top = 16.dp)) // Adjust as needed
+                }
+
+                val tasksToShow =
+                    if (completedTasksIncluded) todoItems
+                    else todoItems.filter { !it.isCompleted }
+                items(tasksToShow) { item ->
+                    TodoItemView(todoItem = item)
+                }
+                item {
+                    Box(
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(start = 56.dp, top = 14.dp, bottom = 24.dp)
+                    ) {
+                        Text(
+                            stringResource(R.string.new_),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onTertiary
+                        )
                     }
                 }
             }

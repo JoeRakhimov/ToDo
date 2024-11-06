@@ -27,7 +27,7 @@ import java.util.Locale
 
 @Composable
 fun TodoItemView(todoItem: TodoItem) {
-    Row(Modifier.background(MaterialTheme.colorScheme.surface)) {
+    Row {
         Checkbox(
             checked = todoItem.isCompleted,
             onCheckedChange = {},
