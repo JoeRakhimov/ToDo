@@ -52,20 +52,41 @@ import androidx.compose.ui.unit.dp
 import com.joerakhimov.todo.navigation.DEFAULT_TASK_ID
 import com.joerakhimov.todo.R
 import com.joerakhimov.todo.data.Importance
+import com.joerakhimov.todo.data.TodoItem
+import com.joerakhimov.todo.data.TodoItemsRepository
 import com.joerakhimov.todo.ui.theme.ToDoTheme
-import java.time.LocalDate
-import java.time.ZoneOffset
-import java.time.format.DateTimeFormatter
+import java.text.SimpleDateFormat
+import java.util.Date
 import java.util.Locale
+import java.util.UUID
 
 fun String?.isNewTaskId() = this == DEFAULT_TASK_ID
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TaskScreen(taskId: String, onExit: () -> Unit, onSave: () -> Unit) {
-    var importance by remember { mutableStateOf(Importance.NORMAL) }
-    var expanded by remember { mutableStateOf(false) }
-    var deadlineDate by remember { mutableStateOf<LocalDate?>(null) }
+fun TaskScreen(
+    repository: TodoItemsRepository,
+    taskId: String,
+    onExit: () -> Unit,
+    onSave: () -> Unit
+) {
+    val task by remember {
+        mutableStateOf(
+            repository.getTodoItems().find { it.id == taskId } ?:
+            TodoItem(
+                id = UUID.randomUUID().toString(),
+                text = "",
+                importance = Importance.NORMAL,
+                deadline = null,
+                isCompleted = false,
+                createdAt = Date(),
+                modifiedAt = null
+            )
+        )
+    }
+//    var importance by remember { mutableStateOf(Importance.NORMAL) }
+    var importanceMenuExpanded by remember { mutableStateOf(false) }
+//    var deadlineDate by remember { mutableStateOf<LocalDate?>(null) }
     var deadlineEnabled by remember { mutableStateOf(false) }
     var showDatePickerDialog by remember { mutableStateOf(false) }
 
@@ -88,7 +109,9 @@ fun TaskScreen(taskId: String, onExit: () -> Unit, onSave: () -> Unit) {
                         stringResource(R.string.save).uppercase(),
                         color = MaterialTheme.colorScheme.primary,
                         style = MaterialTheme.typography.labelLarge,
-                        modifier = Modifier.padding(16.dp)
+                        modifier = Modifier
+                            .padding(16.dp)
+                            .clickable { }
                     )
                 }
             )
@@ -102,15 +125,15 @@ fun TaskScreen(taskId: String, onExit: () -> Unit, onSave: () -> Unit) {
                     .verticalScroll(scrollState)
                     .padding(16.dp)
             ) {
-                var textFieldValue by remember { mutableStateOf("") }
+//                var textFieldValue by remember { mutableStateOf("") }
                 Card(
                     shape = RoundedCornerShape(8.dp),
                     elevation = CardDefaults.cardElevation(defaultElevation = 4.dp), // Adjust elevation as needed
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     TextField(
-                        value = textFieldValue,
-                        onValueChange = { textFieldValue = it },
+                        value = task.text,
+                        onValueChange = { task.text = it },
                         placeholder = { Text(stringResource(R.string.what_to_do)) },
                         textStyle = MaterialTheme.typography.bodyMedium,
                         modifier = Modifier
@@ -136,7 +159,7 @@ fun TaskScreen(taskId: String, onExit: () -> Unit, onSave: () -> Unit) {
                         Modifier
                             .height(72.dp)
                             .fillMaxWidth()
-                            .clickable { expanded = true },
+                            .clickable { importanceMenuExpanded = true },
                         verticalArrangement = Arrangement.Center,
                     ) {
                         Text(
@@ -146,7 +169,7 @@ fun TaskScreen(taskId: String, onExit: () -> Unit, onSave: () -> Unit) {
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
-                            when (importance) {
+                            when (task.importance) {
                                 Importance.LOW -> stringResource(R.string.low)
                                 Importance.NORMAL -> stringResource(R.string.normal)
                                 Importance.URGENT -> stringResource(R.string.urgent)
@@ -157,8 +180,8 @@ fun TaskScreen(taskId: String, onExit: () -> Unit, onSave: () -> Unit) {
                     }
 
                     DropdownMenu(
-                        expanded = expanded,
-                        onDismissRequest = { expanded = false },
+                        expanded = importanceMenuExpanded,
+                        onDismissRequest = { importanceMenuExpanded = false },
                         Modifier.background(MaterialTheme.colorScheme.surface)
                     ) {
                         DropdownMenuItem(text = {
@@ -167,8 +190,8 @@ fun TaskScreen(taskId: String, onExit: () -> Unit, onSave: () -> Unit) {
                                 color = MaterialTheme.colorScheme.onPrimary
                             )
                         }, onClick = {
-                            importance = Importance.NORMAL
-                            expanded = false
+                            task.importance = Importance.NORMAL
+                            importanceMenuExpanded = false
                         })
                         DropdownMenuItem(text = {
                             Text(
@@ -176,8 +199,8 @@ fun TaskScreen(taskId: String, onExit: () -> Unit, onSave: () -> Unit) {
                                 color = MaterialTheme.colorScheme.onPrimary
                             )
                         }, onClick = {
-                            importance = Importance.LOW
-                            expanded = false
+                            task.importance = Importance.LOW
+                            importanceMenuExpanded = false
                         })
                         DropdownMenuItem(text = {
                             Row {
@@ -187,8 +210,8 @@ fun TaskScreen(taskId: String, onExit: () -> Unit, onSave: () -> Unit) {
                                 )
                             }
                         }, onClick = {
-                            importance = Importance.URGENT
-                            expanded = false
+                            task.importance = Importance.URGENT
+                            importanceMenuExpanded = false
                         })
                     }
                 }
@@ -214,15 +237,15 @@ fun TaskScreen(taskId: String, onExit: () -> Unit, onSave: () -> Unit) {
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onPrimary
                             )
-                            if (deadlineDate != null) {
+                            if (task.deadline != null) {
                                 Spacer(modifier = Modifier.height(4.dp))
                                 Text(
-                                    deadlineDate?.format(
-                                        DateTimeFormatter.ofPattern(
+                                    task.deadline?.let {
+                                        SimpleDateFormat(
                                             "dd.MM.yyyy",
                                             Locale.getDefault()
-                                        )
-                                    ) ?: "",
+                                        ).format(it)
+                                    } ?: "",
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = MaterialTheme.colorScheme.primary
                                 )
@@ -235,7 +258,7 @@ fun TaskScreen(taskId: String, onExit: () -> Unit, onSave: () -> Unit) {
                                 if (deadlineEnabled) {
                                     showDatePickerDialog = true
                                 } else {
-                                    deadlineDate = null
+                                    task.deadline = null
                                 }
                             },
                             colors = SwitchDefaults.colors(
@@ -250,8 +273,7 @@ fun TaskScreen(taskId: String, onExit: () -> Unit, onSave: () -> Unit) {
 
                     if (showDatePickerDialog) {
                         // Convert deadlineDate to milliseconds in UTC time zone
-                        val initialDateInMillis =
-                            deadlineDate?.atStartOfDay(ZoneOffset.UTC)?.toInstant()?.toEpochMilli()
+                        val initialDateInMillis = task.deadline?.time
 
                         // Initialize DatePickerState with the corrected initial date in milliseconds
                         val datePickerState = rememberDatePickerState(
@@ -264,8 +286,7 @@ fun TaskScreen(taskId: String, onExit: () -> Unit, onSave: () -> Unit) {
                                 TextButton(onClick = {
                                     datePickerState.selectedDateMillis?.let { selectedDateMillis ->
                                         // Convert the selected milliseconds to LocalDate in UTC
-                                        deadlineDate =
-                                            LocalDate.ofEpochDay(selectedDateMillis / (24 * 60 * 60 * 1000))
+                                        task.deadline = Date(selectedDateMillis)
                                         deadlineEnabled = true
                                     }
                                     showDatePickerDialog = false
@@ -276,7 +297,7 @@ fun TaskScreen(taskId: String, onExit: () -> Unit, onSave: () -> Unit) {
                             dismissButton = {
                                 TextButton(onClick = {
                                     showDatePickerDialog = false
-                                    deadlineEnabled = deadlineDate != null
+                                    deadlineEnabled = task.deadline != null
                                 }) {
                                     Text(stringResource(R.string.Cancel))
                                 }
@@ -335,6 +356,6 @@ fun TaskScreen(taskId: String, onExit: () -> Unit, onSave: () -> Unit) {
 @Composable
 fun TaskScreenPreview() {
     ToDoTheme(dynamicColor = false) {
-        TaskScreen(DEFAULT_TASK_ID, {}, {})
+        TaskScreen(TodoItemsRepository(), DEFAULT_TASK_ID, {}, {})
     }
 }

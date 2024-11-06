@@ -26,7 +26,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -38,19 +37,19 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.joerakhimov.todo.R
+import com.joerakhimov.todo.data.TodoItemsRepository
 import com.joerakhimov.todo.ui.theme.ToDoTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TasksScreen(
+    repository: TodoItemsRepository,
     onAddTaskButtonClick: () -> Unit,
     onTaskClick: (taskId: String) -> Unit
 ) {
 
-    val viewModel: TodoViewModel = viewModel()
-    val todoItems by viewModel.todoItems.collectAsState()
+    val todoItems by remember{ mutableStateOf(repository.getTodoItems()) }
 
     var completedTasksIncluded by remember { mutableStateOf(false) }
     val scrollBehavior =
@@ -177,6 +176,6 @@ fun TasksScreen(
 @Composable
 fun TasksScreenPreview() {
     ToDoTheme(dynamicColor = false) {
-        TasksScreen({}, {})
+        TasksScreen(TodoItemsRepository(), {}, {})
     }
 }
