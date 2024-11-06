@@ -115,15 +115,16 @@ fun TaskScreen(
                                     Toast
                                         .makeText(
                                             context,
-                                            "Описание задания не может быть пустым",
+                                            context.getString(R.string.task_description_cannot_be_empty),
                                             Toast.LENGTH_SHORT
                                         )
                                         .show()
                                     return@clickable
                                 }
-                                if(taskId.isNewTaskId()){
+                                if (taskId.isNewTaskId()) {
                                     repository.addTodoItem(task)
                                 } else {
+                                    task.modifiedAt = Date()
                                     repository.updateTodoItem(task)
                                 }
                                 onExit()

@@ -13,4 +13,5 @@
     <string name="low">Низкий</string>
     <string name="normal">Нет</string>
     <string name="urgent">Высокий</string>
+    <string name="task_description_cannot_be_empty">Описание задания не может быть пустым</string>
 </resources>

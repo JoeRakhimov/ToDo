@@ -39,13 +39,10 @@ class TodoItemsRepository {
         todoItems.remove(todoItem)
     }
 
-    fun updateTodoItem(todoItem: TodoItem): Boolean {
+    fun updateTodoItem(todoItem: TodoItem) {
         val index = todoItems.indexOfFirst { it.id == todoItem.id }
-        return if (index != -1) {
+        if (index != -1) {
             todoItems[index] = todoItem
-            true
-        } else {
-            false
         }
     }
 

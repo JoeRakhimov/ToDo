@@ -9,10 +9,10 @@ data class TodoItem(
     var deadline: Date?, // дедлайн
     val isCompleted: Boolean, // флаг выполнения задания
     val createdAt: Date, // дата создания задания
-    val modifiedAt: Date? // дата изменения задания
+    var modifiedAt: Date? // дата изменения задания
 )
 
-enum class Importance() {
+enum class Importance {
     LOW,
     NORMAL,
     URGENT;

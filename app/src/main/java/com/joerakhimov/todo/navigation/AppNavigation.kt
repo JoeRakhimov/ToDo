@@ -13,6 +13,11 @@ import com.joerakhimov.todo.tasks.TasksScreen
 const val KEY_TASK_ID = "taskId"
 const val DEFAULT_TASK_ID = ""
 
+sealed class Screen(val route: String) {
+    object Tasks : Screen("tasks")
+    object Task : Screen("task/{$KEY_TASK_ID}")
+}
+
 @Composable
 fun AppNavigation(
 ) {
@@ -22,20 +27,20 @@ fun AppNavigation(
         navController = navController,
         startDestination = Screen.Tasks.route
     ) {
+
         // Route for tasks list
         composable(route = Screen.Tasks.route) {
             TasksScreen(
                 repository,
                 onAddTaskButtonClick = {
-                    // Navigate to add task screen (no ID needed)
                     navController.navigate(Screen.Task.route)
                 },
                 onTaskClick = { taskId ->
-                    // Navigate to edit task screen with taskId
                     navController.navigate("${Screen.Task.route}/$taskId")
                 }
             )
         }
+
         // Route for adding a new task
         composable(route = Screen.Task.route) {
             TaskScreen(
@@ -44,6 +49,7 @@ fun AppNavigation(
                 onExit = { navController.popBackStack() }
             )
         }
+
         // Route for editing an existing task
         composable(
             route = "${Screen.Task.route}/{$KEY_TASK_ID}",
