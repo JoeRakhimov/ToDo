@@ -9,7 +9,7 @@ class TodoItemsRepository {
         TodoItem("todo_2", "Finish Kotlin project", Importance.URGENT, Date(System.currentTimeMillis() + 86400000), false, Date(), null),
         TodoItem("todo_3", "Call mom", Importance.NORMAL, null, true, Date(), Date()),
         TodoItem("todo_4", "Schedule dentist appointment", Importance.URGENT, Date(System.currentTimeMillis() + 604800000), false, Date(), null),
-        TodoItem("todo_5", "Read a book", Importance.LOW, null, false, Date(), null),
+        TodoItem("todo_5", "Prepare the annual report for the department, including financial analysis, project updates, and team performance metrics", Importance.LOW, null, false, Date(), null),
         TodoItem("todo_6", "Exercise for 30 minutes", Importance.NORMAL, null, true, Date(), Date()),
         TodoItem("todo_7", "Prepare presentation for work", Importance.URGENT, Date(System.currentTimeMillis() + 432000000), false, Date(), null),
         TodoItem("todo_8", "Clean the house", Importance.NORMAL, null, false, Date(), null),

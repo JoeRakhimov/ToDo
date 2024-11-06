@@ -17,6 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -31,72 +32,56 @@ import java.util.Locale
 @Composable
 fun TodoItemView(
     todoItem: TodoItem,
-    onClick: (taskId: String) -> Unit = {},
+    onClick: (taskId: String) -> Unit = {}
 ) {
-    Row(Modifier.clickable { onClick(todoItem.id) }) {
+    val checkboxColors = getCheckboxColors(todoItem)
+    val importanceIcon = getImportanceIcon(todoItem.importance)
+
+    Row(
+        Modifier
+            .clickable { onClick(todoItem.id) }
+            .padding(horizontal = 8.dp)
+    ) {
         Checkbox(
             checked = todoItem.isCompleted,
             onCheckedChange = {},
-            colors = CheckboxDefaults.colors(
-                checkedColor = MaterialTheme.colorScheme.secondary,
-                checkmarkColor = Color.White,
-                uncheckedColor = when {
-                    todoItem.importance == Importance.URGENT -> MaterialTheme.colorScheme.error
-                    else -> MaterialTheme.colorScheme.onSurface
-                },
-            ).copy(
-                uncheckedBoxColor =
-                when {
-                    todoItem.isCompleted -> MaterialTheme.colorScheme.secondary
-                    todoItem.importance == Importance.URGENT -> MaterialTheme.colorScheme.error.copy(
-                        alpha = 0.16f
-                    )
-                    else -> Color.Transparent
-                }
-            ),
+            colors = checkboxColors,
             modifier = Modifier.padding(4.dp)
         )
-        if (!todoItem.isCompleted) {
-            if (todoItem.importance == Importance.URGENT) {
-                Image(
-                    painter = painterResource(id = R.drawable.urgent),
-                    contentDescription = "Urgent icon",
-                    modifier = Modifier.padding(top = 20.dp, end = 6.dp)
-                )
-            } else if (todoItem.importance == Importance.LOW) {
-                Image(
-                    painter = painterResource(id = R.drawable.low),
-                    contentDescription = "Not important icon",
-                    modifier = Modifier.padding(top = 20.dp, end = 6.dp)
-                )
-            }
+
+        importanceIcon?.let {
+            Image(
+                painter = painterResource(id = it),
+                contentDescription = "${todoItem.importance} importance icon",
+                modifier = Modifier
+                    .padding(top = 20.dp, end = 6.dp)
+            )
         }
+
         Column(
             Modifier
                 .align(Alignment.CenterVertically)
                 .weight(1f)
-                .padding(vertical = 14.dp)
+                .padding(vertical = 16.dp)
         ) {
             Text(
                 text = todoItem.text,
                 maxLines = 3,
                 overflow = TextOverflow.Ellipsis,
                 style = MaterialTheme.typography.bodyMedium,
-                textDecoration = if (todoItem.isCompleted) androidx.compose.ui.text.style.TextDecoration.LineThrough else androidx.compose.ui.text.style.TextDecoration.None,
-                color = if (todoItem.isCompleted) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onBackground,
+                textDecoration = if (todoItem.isCompleted) TextDecoration.LineThrough else TextDecoration.None,
+                color = if (todoItem.isCompleted) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onBackground
             )
-            if (!todoItem.isCompleted && todoItem.deadline != null) {
+            todoItem.deadline?.let { deadline ->
                 Text(
-                    text = SimpleDateFormat(
-                        "dd.MM.yyyy",
-                        Locale.getDefault()
-                    ).format(todoItem.deadline),
+                    text = formatDate(deadline),
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.padding(top = 4.dp)
                 )
             }
         }
+
         Icon(
             imageVector = Icons.Outlined.Info,
             contentDescription = "Info icon",
@@ -106,6 +91,40 @@ fun TodoItemView(
         )
     }
 }
+
+@Composable
+private fun getCheckboxColors(todoItem: TodoItem) = CheckboxDefaults.colors(
+    checkedColor = MaterialTheme.colorScheme.secondary,
+    checkmarkColor = Color.White,
+    uncheckedColor = if (todoItem.importance == Importance.URGENT) {
+        MaterialTheme.colorScheme.error
+    } else {
+        MaterialTheme.colorScheme.onSurface
+    }
+).copy(
+    uncheckedBoxColor = if (todoItem.isCompleted) {
+        MaterialTheme.colorScheme.secondary
+    } else if (todoItem.importance == Importance.URGENT) {
+        MaterialTheme.colorScheme.error.copy(alpha = 0.16f)
+    } else {
+        Color.Transparent
+    }
+)
+
+@Composable
+private fun getImportanceIcon(importance: Importance): Int? {
+    return when (importance) {
+        Importance.URGENT -> R.drawable.urgent
+        Importance.LOW -> R.drawable.low
+        else -> null
+    }
+}
+
+private fun formatDate(date: Date): String {
+    val formatter = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
+    return formatter.format(date)
+}
+
 
 @Preview(showBackground = true)
 @Composable
@@ -164,7 +183,7 @@ fun PreviewTodoItemView3() {
 fun PreviewTodoItemView4() {
     val sampleTodoItem2 = TodoItem(
         "todo_4",
-        "Купить что-то",
+        "Купить что-то, где-то, зачем-то, но зачем не очень понятно, но точно чтобы показать как обрезается текст когда текст слишком длинный",
         Importance.URGENT,
         null,
         false,
