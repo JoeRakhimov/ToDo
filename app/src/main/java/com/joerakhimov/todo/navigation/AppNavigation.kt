@@ -32,7 +32,7 @@ fun AppNavigation(
         composable(route = Screen.Tasks.route) {
             TasksScreen(
                 repository,
-                onAddTaskButtonClick = {
+                onAddNewTaskButtonClick = {
                     navController.navigate(Screen.Task.route)
                 },
                 onTaskClick = { taskId ->

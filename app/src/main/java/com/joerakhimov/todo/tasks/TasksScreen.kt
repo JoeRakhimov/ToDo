@@ -3,6 +3,7 @@ package com.joerakhimov.todo.tasks
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -24,6 +25,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -38,6 +40,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.joerakhimov.todo.R
+import com.joerakhimov.todo.data.TodoItem
 import com.joerakhimov.todo.data.TodoItemsRepository
 import com.joerakhimov.todo.ui.theme.ToDoTheme
 
@@ -45,127 +48,142 @@ import com.joerakhimov.todo.ui.theme.ToDoTheme
 @Composable
 fun TasksScreen(
     repository: TodoItemsRepository,
-    onAddTaskButtonClick: () -> Unit,
+    onAddNewTaskButtonClick: () -> Unit,
     onTaskClick: (taskId: String) -> Unit
 ) {
+    val topAppBarScrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
+    val todoItems by remember { mutableStateOf(repository.getTodoItems()) }
+    var showCompletedTodoItems by remember { mutableStateOf(false) }
 
-    val todoItems by remember{ mutableStateOf(repository.getTodoItems()) }
-
-    var completedTasksIncluded by remember { mutableStateOf(false) }
-    val scrollBehavior =
-        TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
-    val topAppBarExpanded = scrollBehavior.state.collapsedFraction == 0f
-    val topAppBarCollapsed = scrollBehavior.state.collapsedFraction == 1f
     Scaffold(
-        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-        topBar = {
-            Surface(shadowElevation = if (topAppBarCollapsed) 4.dp else 0.dp) {
-                LargeTopAppBar(
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.background,
-                        scrolledContainerColor = MaterialTheme.colorScheme.background,
-                        titleContentColor = MaterialTheme.colorScheme.onPrimary,
-                    ),
-                    title = {
-                        Row {
-                            Column(Modifier.weight(1f)) {
-                                Text(
-                                    stringResource(R.string.my_tasks),
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis,
-                                    style = MaterialTheme.typography.titleLarge
-                                )
-                                if (topAppBarExpanded) {
-                                    Text(
-                                        stringResource(
-                                            R.string.completed,
-                                            todoItems.count { it.isCompleted }),
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        color = MaterialTheme.colorScheme.onTertiary
-                                    )
-                                }
-                            }
-                            if (topAppBarExpanded) {
-                                IconButton(
-                                    onClick = { completedTasksIncluded = !completedTasksIncluded },
-                                    modifier = Modifier.padding(4.dp)
-                                ) {
-                                    Icon(
-                                        imageVector = if (completedTasksIncluded) Icons.Filled.VisibilityOff else Icons.Filled.Visibility,
-                                        contentDescription = "Localized description",
-                                        tint = MaterialTheme.colorScheme.primary
-                                    )
-                                }
-                            }
-                        }
-
-                    },
-                    actions = {
-                        if (topAppBarCollapsed) {
-                            IconButton(onClick = {
-                                completedTasksIncluded = !completedTasksIncluded
-                            }) {
-                                Icon(
-                                    imageVector = Icons.Filled.Visibility,
-                                    contentDescription = "Localized description",
-                                    tint = MaterialTheme.colorScheme.primary
-                                )
-                            }
-                        }
-                    },
-                    scrollBehavior = scrollBehavior
-                )
-            }
-        },
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = { onAddTaskButtonClick() },
-                containerColor = MaterialTheme.colorScheme.primary,
-                shape = MaterialTheme.shapes.extraLarge,
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    tint = Color.White,
-                    contentDescription = "Add",
-                )
-            }
-        },
+        modifier = Modifier.nestedScroll(topAppBarScrollBehavior.nestedScrollConnection),
+        topBar = { TasksTopAppBar(topAppBarScrollBehavior, todoItems, showCompletedTodoItems, onToggleShowCompleted = { showCompletedTodoItems = !showCompletedTodoItems }) },
+        floatingActionButton = { AddTaskButton(onClick = onAddNewTaskButtonClick) },
     ) { paddingValues ->
-        Surface(
-            modifier = Modifier
-                .padding(paddingValues)
-                .padding(horizontal = 16.dp),
-            color = MaterialTheme.colorScheme.surface,
-            shadowElevation = 4.dp,
-            shape = RoundedCornerShape(8.dp),
-        ) {
-            LazyColumn {
+        TaskList(
+            todoItems = todoItems,
+            showCompletedTasks = showCompletedTodoItems,
+            onTaskClick = onTaskClick,
+            paddingValues = paddingValues,
+            onAddNewTaskButtonClick = onAddNewTaskButtonClick
+        )
+    }
+}
 
-                item {
-                    Spacer(modifier = Modifier.padding(top = 16.dp)) // Adjust as needed
-                }
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun TasksTopAppBar(
+    topAppBarScrollBehavior: TopAppBarScrollBehavior,
+    todoItems: List<TodoItem>,
+    showCompletedTasks: Boolean,
+    onToggleShowCompleted: () -> Unit
+) {
 
-                val tasksToShow =
-                    if (completedTasksIncluded) todoItems
-                    else todoItems.filter { !it.isCompleted }
-                items(tasksToShow) { item ->
-                    TodoItemView(todoItem = item){
-                        onTaskClick(it)
+    val topAppBarExpanded = topAppBarScrollBehavior.state.collapsedFraction == 0f
+    val topAppBarCollapsed = topAppBarScrollBehavior.state.collapsedFraction == 1f
+
+    Surface(shadowElevation = if (topAppBarCollapsed) 4.dp else 0.dp) {
+        LargeTopAppBar(
+            colors = TopAppBarDefaults.topAppBarColors(
+                containerColor = MaterialTheme.colorScheme.background,
+                scrolledContainerColor = MaterialTheme.colorScheme.background,
+                titleContentColor = MaterialTheme.colorScheme.onPrimary,
+            ),
+            title = {
+                Row {
+                    Column(Modifier.weight(1f)) {
+                        Text(
+                            stringResource(R.string.my_tasks),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            style = MaterialTheme.typography.titleLarge
+                        )
+                        if (topAppBarExpanded) {
+                            Text(
+                                stringResource(R.string.completed, todoItems.count { it.isCompleted }),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onTertiary
+                            )
+                        }
+                    }
+                    if (topAppBarExpanded) {
+                        IconButton(onClick = onToggleShowCompleted) {
+                            Icon(
+                                imageVector = if (showCompletedTasks) Icons.Filled.VisibilityOff else Icons.Filled.Visibility,
+                                contentDescription = stringResource(R.string.toggle_completed),
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                        }
                     }
                 }
-                item {
-                    Box(
-                        Modifier
-                            .fillMaxWidth()
-                            .clickable { onAddTaskButtonClick() }
-                            .padding(start = 56.dp, top = 14.dp, bottom = 24.dp)
-                    ) {
-                        Text(
-                            stringResource(R.string.new_),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onTertiary
+            },
+            actions = {
+                if (topAppBarCollapsed) {
+                    IconButton(onClick = onToggleShowCompleted) {
+                        Icon(
+                            imageVector = Icons.Filled.Visibility,
+                            contentDescription = stringResource(R.string.toggle_completed),
+                            tint = MaterialTheme.colorScheme.primary
                         )
                     }
+                }
+            },
+            scrollBehavior = topAppBarScrollBehavior
+        )
+    }
+}
+
+@Composable
+fun AddTaskButton(onClick: () -> Unit) {
+    FloatingActionButton(
+        onClick = onClick,
+        containerColor = MaterialTheme.colorScheme.primary,
+        shape = MaterialTheme.shapes.extraLarge,
+    ) {
+        Icon(
+            imageVector = Icons.Default.Add,
+            tint = Color.White,
+            contentDescription = stringResource(R.string.add_task),
+        )
+    }
+}
+
+@Composable
+fun TaskList(
+    todoItems: List<TodoItem>,
+    showCompletedTasks: Boolean,
+    onTaskClick: (taskId: String) -> Unit,
+    paddingValues: PaddingValues,
+    onAddNewTaskButtonClick: () -> Unit
+) {
+    Surface(
+        modifier = Modifier
+            .padding(paddingValues)
+            .padding(horizontal = 16.dp),
+        color = MaterialTheme.colorScheme.surface,
+        shadowElevation = 4.dp,
+        shape = RoundedCornerShape(8.dp),
+    ) {
+        LazyColumn {
+            item { Spacer(modifier = Modifier.padding(top = 16.dp)) }
+
+            val filteredItems = if (showCompletedTasks) todoItems else todoItems.filter { !it.isCompleted }
+            items(filteredItems) { item ->
+                TodoItemView(todoItem = item) { onTaskClick(it) }
+            }
+
+            item {
+                Box(
+                    Modifier
+                        .fillMaxWidth()
+                        .clickable { onAddNewTaskButtonClick() }
+                        .padding(start = 56.dp, top = 14.dp, bottom = 24.dp)
+                ) {
+                    Text(
+                        stringResource(R.string.new_),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onTertiary
+                    )
                 }
             }
         }

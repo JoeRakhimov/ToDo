@@ -114,9 +114,9 @@ private fun getCheckboxColors(todoItem: TodoItem) = CheckboxDefaults.colors(
 @Composable
 private fun getImportanceIcon(importance: Importance): Int? {
     return when (importance) {
-        Importance.URGENT -> R.drawable.urgent
         Importance.LOW -> R.drawable.low
-        else -> null
+        Importance.NORMAL -> null
+        Importance.URGENT -> R.drawable.urgent
     }
 }
 
