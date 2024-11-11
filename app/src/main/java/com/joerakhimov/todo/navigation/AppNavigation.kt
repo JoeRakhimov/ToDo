@@ -1,11 +1,13 @@
 package com.joerakhimov.todo.navigation
 
+import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.joerakhimov.todo.data.ApiServiceProvider
 import com.joerakhimov.todo.data.TodoItemsRepository
 import com.joerakhimov.todo.task.TaskScreen
 import com.joerakhimov.todo.tasks.TasksScreen
@@ -19,10 +21,11 @@ sealed class Screen(val route: String) {
 }
 
 @Composable
-fun AppNavigation(
-) {
+fun AppNavigation(context: Context) {
     val navController = rememberNavController()
-    val repository: TodoItemsRepository = remember { TodoItemsRepository() }
+    val repository: TodoItemsRepository = remember {
+        TodoItemsRepository(ApiServiceProvider.provideTodoApi(context))
+    }
     NavHost(
         navController = navController,
         startDestination = Screen.Tasks.route
@@ -31,7 +34,6 @@ fun AppNavigation(
         // Route for tasks list
         composable(route = Screen.Tasks.route) {
             TasksScreen(
-                repository,
                 onAddNewTaskButtonClick = {
                     navController.navigate(Screen.Task.route)
                 },

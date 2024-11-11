@@ -27,7 +27,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
-import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -61,6 +60,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.joerakhimov.todo.navigation.DEFAULT_TASK_ID
 import com.joerakhimov.todo.R
+import com.joerakhimov.todo.data.ApiServiceProvider
 import com.joerakhimov.todo.data.Importance
 import com.joerakhimov.todo.data.TodoItem
 import com.joerakhimov.todo.data.TodoItemsRepository
@@ -116,7 +116,8 @@ fun TaskScreen(
 
 
 private fun getTask(repository: TodoItemsRepository, taskId: String): TodoItem {
-    return repository.getTodoItems().find { it.id == taskId } ?: TodoItem(
+//    return repository.getTodoItems().find { it.id == taskId } ?:
+    return TodoItem(
         id = UUID.randomUUID().toString(),
         text = "",
         importance = Importance.NORMAL,
@@ -260,7 +261,7 @@ private fun ImportanceSection(
                 when (task.importance) {
                     Importance.LOW -> stringResource(R.string.low)
                     Importance.NORMAL -> stringResource(R.string.normal)
-                    Importance.URGENT -> stringResource(R.string.urgent)
+                    Importance.IMPORTANT -> stringResource(R.string.urgent)
                 },
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onTertiary
@@ -309,7 +310,7 @@ private fun ImportanceDropdownMenu(
                 )
             }
         }, onClick = {
-            onImportanceSelected(Importance.URGENT)
+            onImportanceSelected(Importance.IMPORTANT)
             onDismissRequest()
         })
     }
@@ -464,15 +465,17 @@ private fun CloseIcon() {
 @Preview(showBackground = true)
 @Composable
 fun TaskScreenPreview() {
+    val context = LocalContext.current
     ToDoTheme(dynamicColor = false) {
-        TaskScreen(TodoItemsRepository(), DEFAULT_TASK_ID, {})
+        TaskScreen(TodoItemsRepository(ApiServiceProvider.provideTodoApi(context)), DEFAULT_TASK_ID, {})
     }
 }
 
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun TaskScreenPreviewDark() {
+    val context = LocalContext.current
     ToDoTheme(dynamicColor = false) {
-        TaskScreen(TodoItemsRepository(), DEFAULT_TASK_ID, {})
+        TaskScreen(TodoItemsRepository(ApiServiceProvider.provideTodoApi(context)), DEFAULT_TASK_ID, {})
     }
 }

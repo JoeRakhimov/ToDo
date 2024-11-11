@@ -97,7 +97,7 @@ fun TodoItemView(
 private fun getCheckboxColors(todoItem: TodoItem) = CheckboxDefaults.colors(
     checkedColor = MaterialTheme.colorScheme.secondary,
     checkmarkColor = Color.White,
-    uncheckedColor = if (todoItem.importance == Importance.URGENT) {
+    uncheckedColor = if (todoItem.importance == Importance.IMPORTANT) {
         MaterialTheme.colorScheme.error
     } else {
         MaterialTheme.colorScheme.onSurface
@@ -105,7 +105,7 @@ private fun getCheckboxColors(todoItem: TodoItem) = CheckboxDefaults.colors(
 ).copy(
     uncheckedBoxColor = if (todoItem.isCompleted) {
         MaterialTheme.colorScheme.secondary
-    } else if (todoItem.importance == Importance.URGENT) {
+    } else if (todoItem.importance == Importance.IMPORTANT) {
         MaterialTheme.colorScheme.error.copy(alpha = 0.16f)
     } else {
         Color.Transparent
@@ -117,7 +117,7 @@ private fun getImportanceIcon(importance: Importance): Int? {
     return when (importance) {
         Importance.LOW -> R.drawable.low
         Importance.NORMAL -> null
-        Importance.URGENT -> R.drawable.urgent
+        Importance.IMPORTANT -> R.drawable.urgent
     }
 }
 
@@ -234,7 +234,7 @@ fun PreviewTodoItemView4() {
     val sampleTodoItem2 = TodoItem(
         "todo_4",
         "Купить что-то, где-то, зачем-то, но зачем не очень понятно, но точно чтобы показать как обрезается текст когда текст слишком длинный",
-        Importance.URGENT,
+        Importance.IMPORTANT,
         null,
         false,
         Date(),
@@ -251,7 +251,7 @@ fun PreviewTodoItemView4Dark() {
     val sampleTodoItem2 = TodoItem(
         "todo_4",
         "Купить что-то, где-то, зачем-то, но зачем не очень понятно, но точно чтобы показать как обрезается текст когда текст слишком длинный",
-        Importance.URGENT,
+        Importance.IMPORTANT,
         null,
         false,
         Date(),

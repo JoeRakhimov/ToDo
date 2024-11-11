@@ -30,6 +30,7 @@ android {
         }
 
         buildConfigField("String", "API_TOKEN", "\"${localProperties["API_TOKEN"]}\"")
+        buildConfigField("String", "BASE_URL", "\"https://hive.mrdekk.ru/todo/\"")
     }
 
     buildTypes {
@@ -75,7 +76,12 @@ dependencies {
     implementation(libs.androidx.material.icons.extended)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.navigation.compose)
-    implementation("com.squareup.retrofit2:retrofit:2.11.0")
+    implementation(libs.retrofit)
+    implementation(libs.converter.gson)
+    implementation(libs.okhttp)
+    implementation(libs.logging.interceptor)
+    debugImplementation(libs.library)
+    releaseImplementation(libs.library.no.op)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
