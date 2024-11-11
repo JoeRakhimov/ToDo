@@ -1,11 +1,9 @@
-package com.joerakhimov.todo.data
+package com.joerakhimov.todo.data.api
 
 import android.content.Context
 import com.chuckerteam.chucker.api.ChuckerInterceptor
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
-import com.joerakhimov.todo.data.AuthorizationInterceptor
-import com.joerakhimov.todo.data.TodoApi
 import com.joerakhimov.todo.BuildConfig
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.converter.gson.GsonConverterFactory

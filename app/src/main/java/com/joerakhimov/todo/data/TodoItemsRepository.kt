@@ -1,5 +1,7 @@
 package com.joerakhimov.todo.data
 
+import com.joerakhimov.todo.data.api.TodoApi
+import com.joerakhimov.todo.data.api.toTodoItem
 import java.util.Date
 
 class TodoItemsRepository(private val todoApi: TodoApi) {
@@ -28,7 +30,11 @@ class TodoItemsRepository(private val todoApi: TodoApi) {
     )
 
     suspend fun getTodoItems(): List<TodoItem> {
-        return todoApi.getTasks().list.map { TodoItemMapper.toTodoItem(it) }
+        return todoApi.getTasks().list.map { it.toTodoItem() }
+    }
+
+    suspend fun getTodoItem(id: String): TodoItem {
+        return todoApi.getTask(id).todoItem.toTodoItem()
     }
 
     fun addTodoItem(todoItem: TodoItem) {

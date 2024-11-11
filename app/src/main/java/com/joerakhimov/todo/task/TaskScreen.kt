@@ -46,6 +46,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -58,9 +59,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.joerakhimov.todo.navigation.DEFAULT_TASK_ID
 import com.joerakhimov.todo.R
-import com.joerakhimov.todo.data.ApiServiceProvider
+import com.joerakhimov.todo.data.api.ApiServiceProvider
 import com.joerakhimov.todo.data.Importance
 import com.joerakhimov.todo.data.TodoItem
 import com.joerakhimov.todo.data.TodoItemsRepository
@@ -78,14 +80,20 @@ sealed class TaskScreenMode {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TaskScreen(
-    repository: TodoItemsRepository,
-    taskId: String,
-    onExit: () -> Unit
+    taskId: String = DEFAULT_TASK_ID,
+    viewModel: TaskViewModel = viewModel<TaskViewModel>(
+        factory = TaskViewModelFactory(
+            TodoItemsRepository(
+                ApiServiceProvider.provideTodoApi(LocalContext.current)
+            ),
+            taskId
+        )
+    ),
+    onExit: () -> Unit = {}
 ) {
-    var task by remember { mutableStateOf(getTask(repository, taskId)) }
-    val taskMode =
-        if (taskId == DEFAULT_TASK_ID) TaskScreenMode.NewTask else TaskScreenMode.EditTask
-    val context = LocalContext.current
+
+    val taskMode = if (taskId == DEFAULT_TASK_ID) TaskScreenMode.NewTask else TaskScreenMode.EditTask
+    val todoItem by viewModel.todoItem.collectAsState()
 
     Scaffold(
         topBar = {
@@ -94,18 +102,28 @@ fun TaskScreen(
                     title = {},
                     navigationIcon = { IconButton(onClick = onExit) { CloseIcon() } },
                     actions = {
-                        SaveAction(task, taskMode, repository, onExit, context)
+//                        SaveAction(task, taskMode, repository, onExit, context)
                     }
                 )
             }
         },
         content = { padding ->
             TaskDetailsContent(
-                task = task,
+                task = todoItem ?: TodoItem(
+                    id = UUID.randomUUID().toString(),
+                    text = "",
+                    importance = Importance.NORMAL,
+                    deadline = null,
+                    isCompleted = false,
+                    createdAt = Date(),
+                    modifiedAt = null
+                ),
                 screenMode = taskMode,
-                onDescriptionChange = { task = task.copy(text = it) },
+                onDescriptionChange = {
+//                    task = task.copy(text = it)
+                },
                 onDeleteButtonClick = {
-                    repository.deleteTodoItem(task)
+//                    repository.deleteTodoItem(task)
                     onExit()
                 },
                 padding = padding
@@ -382,7 +400,8 @@ private fun DeadlineDatePickerDialog(
 ) {
 
     val initialSelectedDateMillis = task.deadline?.time
-    val datePickerState = rememberDatePickerState(initialSelectedDateMillis = initialSelectedDateMillis)
+    val datePickerState =
+        rememberDatePickerState(initialSelectedDateMillis = initialSelectedDateMillis)
 
     DatePickerDialog(
         onDismissRequest = { },
@@ -465,17 +484,15 @@ private fun CloseIcon() {
 @Preview(showBackground = true)
 @Composable
 fun TaskScreenPreview() {
-    val context = LocalContext.current
     ToDoTheme(dynamicColor = false) {
-        TaskScreen(TodoItemsRepository(ApiServiceProvider.provideTodoApi(context)), DEFAULT_TASK_ID, {})
+        TaskScreen()
     }
 }
 
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun TaskScreenPreviewDark() {
-    val context = LocalContext.current
     ToDoTheme(dynamicColor = false) {
-        TaskScreen(TodoItemsRepository(ApiServiceProvider.provideTodoApi(context)), DEFAULT_TASK_ID, {})
+        TaskScreen()
     }
 }

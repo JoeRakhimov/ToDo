@@ -1,4 +1,4 @@
-package com.joerakhimov.todo.data
+package com.joerakhimov.todo.data.api
 
 import com.joerakhimov.todo.BuildConfig
 import okhttp3.Interceptor

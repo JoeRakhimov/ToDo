@@ -46,7 +46,7 @@ import com.joerakhimov.todo.R
 import com.joerakhimov.todo.data.TodoItem
 import com.joerakhimov.todo.ui.theme.ToDoTheme
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.joerakhimov.todo.data.ApiServiceProvider
+import com.joerakhimov.todo.data.api.ApiServiceProvider
 import com.joerakhimov.todo.data.TodoItemsRepository
 
 @OptIn(ExperimentalMaterial3Api::class)

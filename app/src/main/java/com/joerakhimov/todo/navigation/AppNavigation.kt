@@ -7,7 +7,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.joerakhimov.todo.data.ApiServiceProvider
+import com.joerakhimov.todo.data.api.ApiServiceProvider
 import com.joerakhimov.todo.data.TodoItemsRepository
 import com.joerakhimov.todo.task.TaskScreen
 import com.joerakhimov.todo.tasks.TasksScreen
@@ -46,8 +46,6 @@ fun AppNavigation(context: Context) {
         // Route for adding a new task
         composable(route = Screen.Task.route) {
             TaskScreen(
-                repository,
-                taskId = DEFAULT_TASK_ID, // Null ID for new task
                 onExit = { navController.popBackStack() }
             )
         }
@@ -59,7 +57,6 @@ fun AppNavigation(context: Context) {
         ) { backStackEntry ->
             val taskId = backStackEntry.arguments?.getString(KEY_TASK_ID) ?: DEFAULT_TASK_ID
             TaskScreen(
-                repository,
                 taskId = taskId,
                 onExit = { navController.popBackStack() }
             )
