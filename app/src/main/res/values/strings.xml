@@ -1,3 +1,19 @@
 <resources>
     <string name="app_name">ToDo</string>
+    <string name="my_tasks">Мои дела</string>
+    <string name="completed">Выполнено - %1$s</string>
+    <string name="new_">Новое</string>
+    <string name="save">Сохранить</string>
+    <string name="what_to_do">Что надо сделать…</string>
+    <string name="importance">Важность</string>
+    <string name="finish_till">Сделать до</string>
+    <string name="done">Готово</string>
+    <string name="cancel">Отмена</string>
+    <string name="delete">Удалить</string>
+    <string name="low">Низкий</string>
+    <string name="normal">Нет</string>
+    <string name="urgent">Высокий</string>
+    <string name="task_description_cannot_be_empty">Описание задания не может быть пустым</string>
+    <string name="add_task">Добавить задание</string>
+    <string name="toggle_completed">Отображение завершенных задач</string>
 </resources>
