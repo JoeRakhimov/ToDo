@@ -116,7 +116,7 @@ private fun getCheckboxColors(todoItem: TodoItem) = CheckboxDefaults.colors(
 private fun getImportanceIcon(importance: Importance): Int? {
     return when (importance) {
         Importance.LOW -> R.drawable.low
-        Importance.NORMAL -> null
+        Importance.BASIC -> null
         Importance.IMPORTANT -> R.drawable.urgent
     }
 }
@@ -132,7 +132,7 @@ fun PreviewTodoItemView1() {
     val sampleTodoItem = TodoItem(
         "todo_1",
         "Buy grocery",
-        Importance.NORMAL,
+        Importance.BASIC,
         null,
         false,
         Date(),
@@ -149,7 +149,7 @@ fun PreviewTodoItemView1Dark() {
     val sampleTodoItem = TodoItem(
         "todo_1",
         "Buy grocery",
-        Importance.NORMAL,
+        Importance.BASIC,
         null,
         false,
         Date(),
@@ -166,7 +166,7 @@ fun PreviewTodoItemView2() {
     val sampleTodoItem2 = TodoItem(
         "todo_2",
         "Купить что-то, где-то, зачем-то, но зачем не очень понятно, но точно чтобы показать как обрезается текст когда текст слишком длинный",
-        Importance.NORMAL,
+        Importance.BASIC,
         null,
         false,
         Date(),
@@ -183,7 +183,7 @@ fun PreviewTodoItemView2Dark() {
     val sampleTodoItem2 = TodoItem(
         "todo_2",
         "Купить что-то, где-то, зачем-то, но зачем не очень понятно, но точно чтобы показать как обрезается текст когда текст слишком длинный",
-        Importance.NORMAL,
+        Importance.BASIC,
         null,
         false,
         Date(),
@@ -268,7 +268,7 @@ fun PreviewTodoItemView5() {
     val sampleTodoItem2 = TodoItem(
         "todo_5",
         "Купить что-то",
-        Importance.NORMAL,
+        Importance.BASIC,
         null,
         true,
         Date(),
@@ -285,7 +285,7 @@ fun PreviewTodoItemView5Dark() {
     val sampleTodoItem2 = TodoItem(
         "todo_5",
         "Купить что-то",
-        Importance.NORMAL,
+        Importance.BASIC,
         null,
         true,
         Date(),
@@ -302,7 +302,7 @@ fun PreviewTodoItemView6() {
     val sampleTodoItem2 = TodoItem(
         "todo_6",
         "Купить что-то",
-        Importance.NORMAL,
+        Importance.BASIC,
         Date(),
         false,
         Date(),
@@ -319,7 +319,7 @@ fun PreviewTodoItemView6Dark() {
     val sampleTodoItem2 = TodoItem(
         "todo_6",
         "Купить что-то",
-        Importance.NORMAL,
+        Importance.BASIC,
         Date(),
         false,
         Date(),

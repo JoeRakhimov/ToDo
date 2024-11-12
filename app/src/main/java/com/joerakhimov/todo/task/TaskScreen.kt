@@ -25,6 +25,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DropdownMenu
@@ -50,7 +51,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -66,6 +66,8 @@ import com.joerakhimov.todo.data.api.ApiServiceProvider
 import com.joerakhimov.todo.data.Importance
 import com.joerakhimov.todo.data.TodoItem
 import com.joerakhimov.todo.data.TodoItemsRepository
+import com.joerakhimov.todo.navigation.PREFERENCES_NAME
+import com.joerakhimov.todo.ui.ScreenState
 import com.joerakhimov.todo.ui.theme.ToDoTheme
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -81,19 +83,61 @@ sealed class TaskScreenMode {
 @Composable
 fun TaskScreen(
     taskId: String = DEFAULT_TASK_ID,
+    repository: TodoItemsRepository = TodoItemsRepository(
+        ApiServiceProvider.provideTodoApi(LocalContext.current),
+        LocalContext.current.getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE)
+    ),
     viewModel: TaskViewModel = viewModel<TaskViewModel>(
         factory = TaskViewModelFactory(
-            TodoItemsRepository(
-                ApiServiceProvider.provideTodoApi(LocalContext.current)
-            ),
+            repository,
             taskId
         )
     ),
     onExit: () -> Unit = {}
 ) {
 
-    val taskMode = if (taskId == DEFAULT_TASK_ID) TaskScreenMode.NewTask else TaskScreenMode.EditTask
-    val todoItem by viewModel.todoItem.collectAsState()
+    val screenState = viewModel.todoItem.collectAsState().value
+
+    when (screenState) {
+        is ScreenState.Loading -> {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator()
+            }
+        }
+        is ScreenState.Success -> {
+            TaskScreenContent(taskId, screenState.data, viewModel, onExit)
+        }
+        is ScreenState.Error -> {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Text("Error: ${screenState.message}")
+            }
+        }
+    }
+
+}
+
+@Composable
+@OptIn(ExperimentalMaterial3Api::class)
+private fun TaskScreenContent(
+    taskId: String,
+    todoItem: TodoItem,
+    viewModel: TaskViewModel,
+    onExit: () -> Unit
+) {
+    val taskMode =
+        if (taskId == DEFAULT_TASK_ID) TaskScreenMode.NewTask else TaskScreenMode.EditTask
+    val todoItemSaved by viewModel.todoItemSaved.collectAsState()
+    val context = LocalContext.current
+
+    if (todoItemSaved) {
+        onExit()
+    }
 
     Scaffold(
         topBar = {
@@ -102,25 +146,27 @@ fun TaskScreen(
                     title = {},
                     navigationIcon = { IconButton(onClick = onExit) { CloseIcon() } },
                     actions = {
-//                        SaveAction(task, taskMode, repository, onExit, context)
+                        SaveAction(todoItem, taskMode, onSave = {
+                            when (taskMode) {
+                                is TaskScreenMode.NewTask -> {
+                                    viewModel.addTodoItem(it)
+                                }
+                                is TaskScreenMode.EditTask -> {
+                                    viewModel.updateTodoItem(it)
+                                }
+                            }
+                        }, onExit, context)
                     }
                 )
             }
         },
         content = { padding ->
             TaskDetailsContent(
-                task = todoItem ?: TodoItem(
-                    id = UUID.randomUUID().toString(),
-                    text = "",
-                    importance = Importance.NORMAL,
-                    deadline = null,
-                    isCompleted = false,
-                    createdAt = Date(),
-                    modifiedAt = null
-                ),
+                task = todoItem,
                 screenMode = taskMode,
                 onDescriptionChange = {
-//                    task = task.copy(text = it)
+                    viewModel.updateTodoItemDescription(it)
+//                    todoItem = todoItem?.copy(text = it)
                 },
                 onDeleteButtonClick = {
 //                    repository.deleteTodoItem(task)
@@ -138,7 +184,7 @@ private fun getTask(repository: TodoItemsRepository, taskId: String): TodoItem {
     return TodoItem(
         id = UUID.randomUUID().toString(),
         text = "",
-        importance = Importance.NORMAL,
+        importance = Importance.BASIC,
         deadline = null,
         isCompleted = false,
         createdAt = Date(),
@@ -150,7 +196,7 @@ private fun getTask(repository: TodoItemsRepository, taskId: String): TodoItem {
 private fun SaveAction(
     task: TodoItem,
     screenMode: TaskScreenMode,
-    repository: TodoItemsRepository,
+    onSave: (task: TodoItem) -> Unit,
     onExit: () -> Unit,
     context: Context
 ) {
@@ -171,14 +217,19 @@ private fun SaveAction(
                         .show()
                     return@clickable
                 }
-                when (screenMode) {
-                    is TaskScreenMode.NewTask -> repository.addTodoItem(task)
-                    is TaskScreenMode.EditTask -> {
-                        task.modifiedAt = Date()
-                        repository.updateTodoItem(task)
-                    }
-                }
-                onExit()
+                onSave(task)
+//                when (screenMode) {
+//                    is TaskScreenMode.NewTask -> {
+////                        repository.addTodoItem(task)
+//                        onSave(task)
+//                    }
+//
+//                    is TaskScreenMode.EditTask -> {
+//                        task.modifiedAt = Date()
+//                        repository.updateTodoItem(task)
+//                    }
+//                }
+//                onExit()
             }
     )
 }
@@ -278,7 +329,7 @@ private fun ImportanceSection(
             Text(
                 when (task.importance) {
                     Importance.LOW -> stringResource(R.string.low)
-                    Importance.NORMAL -> stringResource(R.string.normal)
+                    Importance.BASIC -> stringResource(R.string.normal)
                     Importance.IMPORTANT -> stringResource(R.string.urgent)
                 },
                 style = MaterialTheme.typography.bodyMedium,
@@ -311,7 +362,7 @@ private fun ImportanceDropdownMenu(
         DropdownMenuItem(text = {
             Text(stringResource(R.string.normal), color = MaterialTheme.colorScheme.onPrimary)
         }, onClick = {
-            onImportanceSelected(Importance.NORMAL)
+            onImportanceSelected(Importance.BASIC)
             onDismissRequest()
         })
         DropdownMenuItem(text = {

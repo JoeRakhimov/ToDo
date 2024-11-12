@@ -5,7 +5,7 @@ import com.google.gson.annotations.SerializedName
 data class TodoItemDto(
 
 	@field:SerializedName("last_updated_by")
-	val lastUpdatedBy: String? = null,
+	val lastUpdatedBy: String = "",
 
 	@field:SerializedName("color")
 	val color: String? = null,

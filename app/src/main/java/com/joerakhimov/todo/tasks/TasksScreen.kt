@@ -1,5 +1,6 @@
 package com.joerakhimov.todo.tasks
 
+import android.content.Context
 import android.content.res.Configuration
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -48,16 +49,17 @@ import com.joerakhimov.todo.ui.theme.ToDoTheme
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.joerakhimov.todo.data.api.ApiServiceProvider
 import com.joerakhimov.todo.data.TodoItemsRepository
+import com.joerakhimov.todo.navigation.PREFERENCES_NAME
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TasksScreen(
+    repository: TodoItemsRepository = TodoItemsRepository(
+        ApiServiceProvider.provideTodoApi(LocalContext.current),
+        LocalContext.current.getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE)
+    ),
     viewModel: TasksViewModel = viewModel<TasksViewModel>(
-        factory = TasksViewModelFactory(
-            TodoItemsRepository(
-                ApiServiceProvider.provideTodoApi(LocalContext.current)
-            )
-        )
+        factory = TasksViewModelFactory(repository)
     ),
     onAddNewTaskButtonClick: () -> Unit = {},
     onTaskClick: (taskId: String) -> Unit = {}

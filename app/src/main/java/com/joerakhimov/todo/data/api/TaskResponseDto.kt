@@ -5,7 +5,7 @@ import com.google.gson.annotations.SerializedName
 data class TaskResponseDto(
 
 	@field:SerializedName("element")
-	val todoItem: TodoItemDto,
+	val element: TodoItemDto,
 
 	@field:SerializedName("revision")
 	val revision: Int? = null,

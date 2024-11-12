@@ -15,6 +15,8 @@ import com.joerakhimov.todo.tasks.TasksScreen
 const val KEY_TASK_ID = "taskId"
 const val DEFAULT_TASK_ID = ""
 
+const val PREFERENCES_NAME = "TodoPreferences"
+
 sealed class Screen(val route: String) {
     object Tasks : Screen("tasks")
     object Task : Screen("task/{$KEY_TASK_ID}")
@@ -24,7 +26,9 @@ sealed class Screen(val route: String) {
 fun AppNavigation(context: Context) {
     val navController = rememberNavController()
     val repository: TodoItemsRepository = remember {
-        TodoItemsRepository(ApiServiceProvider.provideTodoApi(context))
+        val todoApi = ApiServiceProvider.provideTodoApi(context)
+        val preferences = context.getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE)
+        TodoItemsRepository(todoApi, preferences)
     }
     NavHost(
         navController = navController,
@@ -46,6 +50,7 @@ fun AppNavigation(context: Context) {
         // Route for adding a new task
         composable(route = Screen.Task.route) {
             TaskScreen(
+                repository = repository,
                 onExit = { navController.popBackStack() }
             )
         }
@@ -58,6 +63,7 @@ fun AppNavigation(context: Context) {
             val taskId = backStackEntry.arguments?.getString(KEY_TASK_ID) ?: DEFAULT_TASK_ID
             TaskScreen(
                 taskId = taskId,
+                repository = repository,
                 onExit = { navController.popBackStack() }
             )
         }

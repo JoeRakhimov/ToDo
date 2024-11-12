@@ -8,11 +8,12 @@ fun TodoItemDto.toTodoItem(): TodoItem {
     return TodoItem(
         id = this.id,
         text = this.text,
-        importance = Importance.valueOf(this.importance.uppercase()),
+        importance = this.importance.let { Importance.valueOf(it.uppercase()) },
         deadline = this.deadline?.let { Date(it) },
         isCompleted = this.done,
         createdAt = Date(this.createdAt),
-        modifiedAt = this.changedAt?.let { Date(it) }
+        modifiedAt = this.changedAt?.let { Date(it) },
+        changedBy = this.lastUpdatedBy
     )
 }
 
@@ -26,5 +27,6 @@ fun TodoItem.toTodoItemDto(): TodoItemDto {
         done = this.isCompleted,
         createdAt = this.createdAt.time,
         changedAt = this.modifiedAt?.time,
+        lastUpdatedBy = this.changedBy
     )
 }
