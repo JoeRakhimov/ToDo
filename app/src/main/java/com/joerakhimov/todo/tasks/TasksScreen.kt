@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -24,6 +25,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
@@ -69,6 +71,9 @@ fun TasksScreen(
     onAddNewTaskButtonClick: () -> Unit = {},
     onTaskClick: (taskId: String) -> Unit = {}
 ) {
+
+    val snackbarHostState = viewModel.snackbarHostState
+
     val topAppBarScrollBehavior =
         TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
 //    val todoItems by remember { mutableStateOf(repository.getTodoItems()) }
@@ -83,7 +88,7 @@ fun TasksScreen(
     }
 
     Scaffold(
-        modifier = Modifier.nestedScroll(topAppBarScrollBehavior.nestedScrollConnection),
+        modifier = Modifier.nestedScroll(topAppBarScrollBehavior.nestedScrollConnection).imePadding(),
         topBar = {
             TasksTopAppBar(
                 topAppBarScrollBehavior,
@@ -92,6 +97,7 @@ fun TasksScreen(
                 onToggleShowCompleted = { areCompletedTasksAreShown = !areCompletedTasksAreShown })
         },
         floatingActionButton = { AddTaskButton(onClick = onAddNewTaskButtonClick) },
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
     ) { paddingValues ->
         TaskList(
             todoItems = todoItems,

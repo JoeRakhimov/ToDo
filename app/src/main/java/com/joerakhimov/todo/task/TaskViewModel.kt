@@ -1,6 +1,6 @@
 package com.joerakhimov.todo.task
 
-import android.util.Log
+import androidx.compose.material3.SnackbarHostState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -19,6 +19,8 @@ class TaskViewModel(
     private val todoItemsRepository: TodoItemsRepository,
     private val todoItemId: String
 ) : ViewModel() {
+
+    val snackbarHostState = SnackbarHostState()
 
     private val _todoItem = MutableStateFlow<ScreenState<TodoItem>>(
         ScreenState.Success(
@@ -51,7 +53,7 @@ class TaskViewModel(
                 val todoItem = todoItemsRepository.getTodoItem(todoItemId)
                 _todoItem.value = ScreenState.Success(todoItem)
             } catch (e: Exception) {
-                _todoItem.value = ScreenState.Error(e.message ?: "Something went wrong")
+                snackbarHostState.showSnackbar("Something went wrong")
             }
         }
     }
@@ -59,6 +61,10 @@ class TaskViewModel(
     fun addTodoItem(todoItem: TodoItem) {
         viewModelScope.launch {
             try {
+                if (todoItem.text.isEmpty()) {
+                    snackbarHostState.showSnackbar("Description cannot be empty")
+                    return@launch
+                }
                 todoItemsRepository.addTodoItem(
                     todoItem.copy(
                         modifiedAt = Date(),
@@ -66,7 +72,7 @@ class TaskViewModel(
                 )
                 _todoItemSaved.value = true
             } catch (e: Exception) {
-                _todoItemSaved.value = false
+                snackbarHostState.showSnackbar("Something went wrong")
             }
         }
     }
@@ -82,6 +88,10 @@ class TaskViewModel(
     fun updateTodoItem(todoItem: TodoItem) {
         viewModelScope.launch {
             try {
+                if (todoItem.text.isEmpty()) {
+                    snackbarHostState.showSnackbar("Description cannot be empty")
+                    return@launch
+                }
                 todoItemsRepository.updateTodoItem(
                     todoItemId, todoItem.copy(
                         modifiedAt = Date(),
@@ -89,7 +99,7 @@ class TaskViewModel(
                 )
                 _todoItemSaved.value = true
             } catch (e: Exception) {
-                _todoItemSaved.value = false
+                snackbarHostState.showSnackbar("Something went wrong")
             }
         }
     }
@@ -101,7 +111,7 @@ class TaskViewModel(
                     todoItemsRepository.deleteTodoItem(todoItemId)
                     _todoItemSaved.value = true
                 } catch (e: Exception) {
-                    _todoItemSaved.value = false
+                    snackbarHostState.showSnackbar("Something went wrong")
                 }
             }
         }

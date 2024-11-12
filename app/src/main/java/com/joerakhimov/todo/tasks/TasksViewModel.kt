@@ -1,6 +1,6 @@
 package com.joerakhimov.todo.tasks
 
-import android.util.Log
+import androidx.compose.material3.SnackbarHostState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -15,6 +15,8 @@ class TasksViewModel(private val todoItemsRepository: TodoItemsRepository): View
     private val _todoItems = MutableStateFlow<List<TodoItem>>(emptyList())
     val todoItems: StateFlow<List<TodoItem>> = _todoItems
 
+    val snackbarHostState = SnackbarHostState()
+
     init {
         fetchTodoItems()
     }
@@ -25,8 +27,7 @@ class TasksViewModel(private val todoItemsRepository: TodoItemsRepository): View
                 val items = todoItemsRepository.getTodoItems() // Suspend function
                 _todoItems.value = items
             } catch (e: Exception) {
-                // Handle error here, maybe update the state to show an error
-                _todoItems.value = emptyList() // Or handle as needed
+                snackbarHostState.showSnackbar("Something went wrong")
             }
         }
     }

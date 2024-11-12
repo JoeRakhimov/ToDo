@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -36,6 +37,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
@@ -136,6 +138,8 @@ private fun TaskScreenContent(
     val todoItemSaved by viewModel.todoItemSaved.collectAsState()
     val context = LocalContext.current
 
+    val snackbarHostState = viewModel.snackbarHostState
+
     LaunchedEffect(todoItemSaved) {
         if (todoItemSaved) {
             onExit()
@@ -177,7 +181,9 @@ private fun TaskScreenContent(
                 },
                 padding = padding
             )
-        }
+        },
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
+        modifier = Modifier.imePadding()
     )
 }
 
@@ -210,16 +216,16 @@ private fun SaveAction(
         modifier = Modifier
             .padding(16.dp)
             .clickable {
-                if (task.text.isEmpty()) {
-                    Toast
-                        .makeText(
-                            context,
-                            context.getString(R.string.task_description_cannot_be_empty),
-                            Toast.LENGTH_SHORT
-                        )
-                        .show()
-                    return@clickable
-                }
+//                if (task.text.isEmpty()) {
+//                    Toast
+//                        .makeText(
+//                            context,
+//                            context.getString(R.string.task_description_cannot_be_empty),
+//                            Toast.LENGTH_SHORT
+//                        )
+//                        .show()
+//                    return@clickable
+//                }
                 onSave(task)
 //                when (screenMode) {
 //                    is TaskScreenMode.NewTask -> {
