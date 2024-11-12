@@ -62,8 +62,11 @@ class TodoItemsRepository(private val todoApi: TodoApi, private val preferences:
         }.element.toTodoItem()
     }
 
-    fun deleteTodoItem(todoItem: TodoItem) {
-        todoItems.remove(todoItem)
+    suspend fun deleteTodoItem(id: String): TodoItem {
+        val revision = preferences.getInt(KEY_REVISION, 0)
+        return todoApi.deleteTask(id, revision).also {
+            preferences.edit().putInt(KEY_REVISION, it.revision).apply()
+        }.element.toTodoItem()
     }
 
 }

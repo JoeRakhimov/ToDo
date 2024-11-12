@@ -94,6 +94,19 @@ class TaskViewModel(
         }
     }
 
+    fun deleteTodoItem(todoItem: TodoItem){
+        viewModelScope.launch {
+            viewModelScope.launch {
+                try {
+                    todoItemsRepository.deleteTodoItem(todoItemId)
+                    _todoItemSaved.value = true
+                } catch (e: Exception) {
+                    _todoItemSaved.value = false
+                }
+            }
+        }
+    }
+
     private fun generateUUID(): String {
         return UUID.randomUUID().toString()
     }

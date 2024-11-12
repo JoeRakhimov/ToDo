@@ -8,7 +8,7 @@ data class TaskResponseDto(
 	val element: TodoItemDto,
 
 	@field:SerializedName("revision")
-	val revision: Int? = null,
+	val revision: Int,
 
 	@field:SerializedName("status")
 	val status: String? = null

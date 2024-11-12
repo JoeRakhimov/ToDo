@@ -1,6 +1,7 @@
 package com.joerakhimov.todo.data.api
 
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.POST
@@ -26,6 +27,12 @@ interface TodoApi {
         @Path ("id") id: String,
         @Header("X-Last-Known-Revision") revision: Int,
         @Body task: TaskRequestDto):
+            TaskResponseDto
+
+    @DELETE("list/{id}")
+    suspend fun deleteTask(
+        @Path ("id") id: String,
+        @Header("X-Last-Known-Revision") revision: Int):
             TaskResponseDto
 
 }

@@ -169,8 +169,8 @@ private fun TaskScreenContent(
 //                    todoItem = todoItem?.copy(text = it)
                 },
                 onDeleteButtonClick = {
-//                    repository.deleteTodoItem(task)
-                    onExit()
+                    viewModel.deleteTodoItem(it)
+//                    onExit()
                 },
                 padding = padding
             )
@@ -239,7 +239,7 @@ private fun TaskDetailsContent(
     task: TodoItem,
     screenMode: TaskScreenMode,
     onDescriptionChange: (String) -> Unit,
-    onDeleteButtonClick: () -> Unit,
+    onDeleteButtonClick: (TodoItem) -> Unit,
     padding: PaddingValues
 ) {
     val scrollState = rememberScrollState()
@@ -261,7 +261,7 @@ private fun TaskDetailsContent(
 
         SectionDivider()
 
-        DeleteSection(screenMode, onDeleteButtonClick)
+        DeleteSection(screenMode, task, onDeleteButtonClick)
     }
 }
 
@@ -486,7 +486,8 @@ private fun DeadlineDatePickerDialog(
 @Composable
 private fun DeleteSection(
     screenMode: TaskScreenMode,
-    onClick: () -> Unit
+    task: TodoItem,
+    onClick: (TodoItem) -> Unit
 ) {
     Row(
         Modifier
@@ -495,7 +496,7 @@ private fun DeleteSection(
             .then(
                 when (screenMode) {
                     is TaskScreenMode.NewTask -> Modifier
-                    is TaskScreenMode.EditTask -> Modifier.clickable { onClick() }
+                    is TaskScreenMode.EditTask -> Modifier.clickable { onClick(task) }
                 }
             ),
         verticalAlignment = Alignment.CenterVertically,
