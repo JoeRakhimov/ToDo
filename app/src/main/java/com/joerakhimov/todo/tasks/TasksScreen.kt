@@ -30,6 +30,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -47,13 +48,17 @@ import com.joerakhimov.todo.R
 import com.joerakhimov.todo.data.TodoItem
 import com.joerakhimov.todo.ui.theme.ToDoTheme
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.joerakhimov.todo.data.api.ApiServiceProvider
 import com.joerakhimov.todo.data.TodoItemsRepository
 import com.joerakhimov.todo.navigation.PREFERENCES_NAME
+import com.joerakhimov.todo.navigation.Screen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TasksScreen(
+    navController: NavHostController = rememberNavController(),
     repository: TodoItemsRepository = TodoItemsRepository(
         ApiServiceProvider.provideTodoApi(LocalContext.current),
         LocalContext.current.getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE)
@@ -69,6 +74,13 @@ fun TasksScreen(
 //    val todoItems by remember { mutableStateOf(repository.getTodoItems()) }
     val todoItems by viewModel.todoItems.collectAsState()
     var areCompletedTasksAreShown by rememberSaveable { mutableStateOf(false) }
+
+    LaunchedEffect(navController.currentBackStackEntry) {
+        val currentRoute = navController.currentBackStackEntry?.destination?.route
+        if (currentRoute == Screen.Tasks.route) {
+            viewModel.updateTodoItems()
+        }
+    }
 
     Scaffold(
         modifier = Modifier.nestedScroll(topAppBarScrollBehavior.nestedScrollConnection),

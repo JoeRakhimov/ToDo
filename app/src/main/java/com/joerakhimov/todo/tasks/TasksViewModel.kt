@@ -31,6 +31,14 @@ class TasksViewModel(private val todoItemsRepository: TodoItemsRepository): View
         }
     }
 
+    fun updateTodoItems() {
+        viewModelScope.launch {
+            if (!todoItemsRepository.isTodoItemsUpToDate()) {
+                fetchTodoItems()
+            }
+        }
+    }
+
 }
 
 class TasksViewModelFactory(

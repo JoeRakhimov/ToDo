@@ -1,4 +1,4 @@
-package com.joerakhimov.todo.data.api
+package com.joerakhimov.todo.data.dto
 
 import com.google.gson.annotations.SerializedName
 

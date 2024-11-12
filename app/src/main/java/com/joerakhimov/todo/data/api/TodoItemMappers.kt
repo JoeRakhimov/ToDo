@@ -2,6 +2,7 @@ package com.joerakhimov.todo.data.api
 
 import com.joerakhimov.todo.data.Importance
 import com.joerakhimov.todo.data.TodoItem
+import com.joerakhimov.todo.data.dto.TodoItemDto
 import java.util.Date
 
 fun TodoItemDto.toTodoItem(): TodoItem {

@@ -46,6 +46,7 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -135,8 +136,10 @@ private fun TaskScreenContent(
     val todoItemSaved by viewModel.todoItemSaved.collectAsState()
     val context = LocalContext.current
 
-    if (todoItemSaved) {
-        onExit()
+    LaunchedEffect(todoItemSaved) {
+        if (todoItemSaved) {
+            onExit()
+        }
     }
 
     Scaffold(

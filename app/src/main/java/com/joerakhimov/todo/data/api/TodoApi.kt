@@ -1,5 +1,8 @@
 package com.joerakhimov.todo.data.api
 
+import com.joerakhimov.todo.data.dto.TaskRequestDto
+import com.joerakhimov.todo.data.dto.TaskResponseDto
+import com.joerakhimov.todo.data.dto.TasksResponseDto
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET

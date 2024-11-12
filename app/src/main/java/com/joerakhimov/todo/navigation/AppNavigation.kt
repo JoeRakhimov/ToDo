@@ -38,6 +38,8 @@ fun AppNavigation(context: Context) {
         // Route for tasks list
         composable(route = Screen.Tasks.route) {
             TasksScreen(
+                navController = navController,
+                repository = repository,
                 onAddNewTaskButtonClick = {
                     navController.navigate(Screen.Task.route)
                 },
