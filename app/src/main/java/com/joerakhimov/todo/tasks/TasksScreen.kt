@@ -76,7 +76,6 @@ fun TasksScreen(
 
     val topAppBarScrollBehavior =
         TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
-//    val todoItems by remember { mutableStateOf(repository.getTodoItems()) }
     val todoItems by viewModel.todoItems.collectAsState()
     var areCompletedTasksAreShown by rememberSaveable { mutableStateOf(false) }
 

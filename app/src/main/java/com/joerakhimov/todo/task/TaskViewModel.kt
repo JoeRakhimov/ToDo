@@ -9,17 +9,45 @@ import com.joerakhimov.todo.data.TodoItem
 import com.joerakhimov.todo.data.TodoItemsRepository
 import com.joerakhimov.todo.navigation.DEFAULT_TASK_ID
 import com.joerakhimov.todo.ui.ScreenState
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import java.io.IOException
 import java.util.Date
 import java.util.UUID
+import java.util.concurrent.TimeoutException
+import retrofit2.HttpException
 
 class TaskViewModel(
     private val todoItemsRepository: TodoItemsRepository,
     private val todoItemId: String
 ) : ViewModel() {
+
+    private val coroutineExceptionHandler = CoroutineExceptionHandler { _, exception ->
+        viewModelScope.launch(Dispatchers.IO) {
+            val errorMessage: String = when (exception) {
+                is IOException -> {
+                    "Произошла ошибка сети."
+                }
+
+                is HttpException -> {
+                    "Произошла ошибка HTTP с кодом статуса: ${exception.code()}"
+                }
+
+                is TimeoutException -> {
+                    "Запрос превысил время ожидания. Пожалуйста, попробуйте снова."
+                }
+
+                else -> {
+                    "Что-то пошло не так" // Something went wrong
+                }
+            }
+
+            snackbarHostState.showSnackbar(errorMessage)
+        }
+    }
 
     val snackbarHostState = SnackbarHostState()
 
@@ -33,7 +61,7 @@ class TaskViewModel(
                 isCompleted = false,
                 createdAt = Date(),
                 modifiedAt = null,
-                changedBy = "device123"
+                changedBy = "device_123"
             )
         )
     )
@@ -49,32 +77,24 @@ class TaskViewModel(
     }
 
     private fun fetchTodoItem() {
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                val todoItem = todoItemsRepository.getTodoItem(todoItemId)
-                _todoItem.value = ScreenState.Success(todoItem)
-            } catch (e: Exception) {
-                snackbarHostState.showSnackbar("Something went wrong")
-            }
+        viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) {
+            val todoItem = todoItemsRepository.getTodoItem(todoItemId)
+            _todoItem.value = ScreenState.Success(todoItem)
         }
     }
 
     fun addTodoItem(todoItem: TodoItem) {
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                if (todoItem.text.isEmpty()) {
-                    snackbarHostState.showSnackbar("Description cannot be empty")
-                    return@launch
-                }
-                todoItemsRepository.addTodoItem(
-                    todoItem.copy(
-                        modifiedAt = Date(),
-                    )
-                )
-                _todoItemSaved.value = true
-            } catch (e: Exception) {
-                snackbarHostState.showSnackbar("Something went wrong")
+        viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) {
+            if (todoItem.text.isEmpty()) {
+                snackbarHostState.showSnackbar("Описание не может быть пустым")
+                return@launch
             }
+            todoItemsRepository.addTodoItem(
+                todoItem.copy(
+                    modifiedAt = Date(),
+                )
+            )
+            _todoItemSaved.value = true
         }
     }
 
@@ -87,32 +107,24 @@ class TaskViewModel(
     }
 
     fun updateTodoItem(todoItem: TodoItem) {
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                if (todoItem.text.isEmpty()) {
-                    snackbarHostState.showSnackbar("Description cannot be empty")
-                    return@launch
-                }
-                todoItemsRepository.updateTodoItem(
-                    todoItemId, todoItem.copy(
-                        modifiedAt = Date(),
-                    )
-                )
-                _todoItemSaved.value = true
-            } catch (e: Exception) {
-                snackbarHostState.showSnackbar("Something went wrong")
+        viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) {
+            if (todoItem.text.isEmpty()) {
+                snackbarHostState.showSnackbar("Описание не может быть пустым")
+                return@launch
             }
+            todoItemsRepository.updateTodoItem(
+                todoItemId, todoItem.copy(
+                    modifiedAt = Date(),
+                )
+            )
+            _todoItemSaved.value = true
         }
     }
 
     fun deleteTodoItem(todoItem: TodoItem) {
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                todoItemsRepository.deleteTodoItem(todoItemId)
-                _todoItemSaved.value = true
-            } catch (e: Exception) {
-                snackbarHostState.showSnackbar("Something went wrong")
-            }
+        viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) {
+            todoItemsRepository.deleteTodoItem(todoItemId)
+            _todoItemSaved.value = true
         }
     }
 

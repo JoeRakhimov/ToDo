@@ -10,6 +10,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import java.util.concurrent.TimeoutException
+import retrofit2.HttpException
 
 class TasksViewModel(private val todoItemsRepository: TodoItemsRepository) : ViewModel() {
 
@@ -28,6 +30,12 @@ class TasksViewModel(private val todoItemsRepository: TodoItemsRepository) : Vie
                 val items = todoItemsRepository.getTodoItems() // Suspend function
                 _todoItems.value = items
             } catch (e: Exception) {
+                snackbarHostState.showSnackbar("Something went wrong")
+            }  catch (e: HttpException) {
+                "Произошла ошибка HTTP с кодом статуса: ${e.code()}"
+            } catch (e: TimeoutException) {
+                "Запрос превысил время ожидания. Пожалуйста, попробуйте снова."
+            }catch (e: Exception) {
                 snackbarHostState.showSnackbar("Something went wrong")
             }
         }
