@@ -103,7 +103,10 @@ fun TasksScreen(
             showCompletedTasks = areCompletedTasksAreShown,
             onTaskClick = onTaskClick,
             paddingValues = paddingValues,
-            onAddNewTaskButtonClick = onAddNewTaskButtonClick
+            onAddNewTaskButtonClick = onAddNewTaskButtonClick,
+            onTaskCompletedChange = {
+                viewModel.completeTodoItem(it)
+            }
         )
     }
 }
@@ -194,7 +197,8 @@ fun TaskList(
     showCompletedTasks: Boolean,
     onTaskClick: (taskId: String) -> Unit,
     paddingValues: PaddingValues,
-    onAddNewTaskButtonClick: () -> Unit
+    onAddNewTaskButtonClick: () -> Unit,
+    onTaskCompletedChange: (todo: TodoItem) -> Unit
 ) {
     Surface(
         modifier = Modifier
@@ -212,7 +216,8 @@ fun TaskList(
             items(filteredItems) { item ->
                 TodoItemView(
                     todoItem = item,
-                    onClick = { onTaskClick(it) }
+                    onClick = { onTaskClick(it) },
+                    onCheckboxCheckedChange = onTaskCompletedChange
                 )
             }
 

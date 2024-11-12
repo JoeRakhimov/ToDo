@@ -33,7 +33,8 @@ import java.util.Locale
 @Composable
 fun TodoItemView(
     todoItem: TodoItem,
-    onClick: (taskId: String) -> Unit = {}
+    onClick: (taskId: String) -> Unit = {},
+    onCheckboxCheckedChange: (TodoItem) -> Unit = {}
 ) {
     val checkboxColors = getCheckboxColors(todoItem)
     val importanceIcon = getImportanceIcon(todoItem.importance)
@@ -45,7 +46,9 @@ fun TodoItemView(
     ) {
         Checkbox(
             checked = todoItem.isCompleted,
-            onCheckedChange = {},
+            onCheckedChange = {
+                onCheckboxCheckedChange(todoItem.copy(isCompleted = !todoItem.isCompleted))
+            },
             colors = checkboxColors,
             modifier = Modifier.padding(4.dp)
         )
