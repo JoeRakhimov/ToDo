@@ -6,11 +6,12 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.joerakhimov.todo.data.TodoItem
 import com.joerakhimov.todo.data.TodoItemsRepository
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class TasksViewModel(private val todoItemsRepository: TodoItemsRepository): ViewModel() {
+class TasksViewModel(private val todoItemsRepository: TodoItemsRepository) : ViewModel() {
 
     private val _todoItems = MutableStateFlow<List<TodoItem>>(emptyList())
     val todoItems: StateFlow<List<TodoItem>> = _todoItems
@@ -22,7 +23,7 @@ class TasksViewModel(private val todoItemsRepository: TodoItemsRepository): View
     }
 
     private fun fetchTodoItems() {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             try {
                 val items = todoItemsRepository.getTodoItems() // Suspend function
                 _todoItems.value = items
@@ -33,10 +34,8 @@ class TasksViewModel(private val todoItemsRepository: TodoItemsRepository): View
     }
 
     fun updateTodoItems() {
-        viewModelScope.launch {
-            if (!todoItemsRepository.isTodoItemsUpToDate()) {
-                fetchTodoItems()
-            }
+        if (!todoItemsRepository.isTodoItemsUpToDate()) {
+            fetchTodoItems()
         }
     }
 

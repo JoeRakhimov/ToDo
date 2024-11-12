@@ -9,6 +9,7 @@ import com.joerakhimov.todo.data.TodoItem
 import com.joerakhimov.todo.data.TodoItemsRepository
 import com.joerakhimov.todo.navigation.DEFAULT_TASK_ID
 import com.joerakhimov.todo.ui.ScreenState
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -48,7 +49,7 @@ class TaskViewModel(
     }
 
     private fun fetchTodoItem() {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             try {
                 val todoItem = todoItemsRepository.getTodoItem(todoItemId)
                 _todoItem.value = ScreenState.Success(todoItem)
@@ -59,7 +60,7 @@ class TaskViewModel(
     }
 
     fun addTodoItem(todoItem: TodoItem) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             try {
                 if (todoItem.text.isEmpty()) {
                     snackbarHostState.showSnackbar("Description cannot be empty")
@@ -86,7 +87,7 @@ class TaskViewModel(
     }
 
     fun updateTodoItem(todoItem: TodoItem) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             try {
                 if (todoItem.text.isEmpty()) {
                     snackbarHostState.showSnackbar("Description cannot be empty")
@@ -104,15 +105,13 @@ class TaskViewModel(
         }
     }
 
-    fun deleteTodoItem(todoItem: TodoItem){
-        viewModelScope.launch {
-            viewModelScope.launch {
-                try {
-                    todoItemsRepository.deleteTodoItem(todoItemId)
-                    _todoItemSaved.value = true
-                } catch (e: Exception) {
-                    snackbarHostState.showSnackbar("Something went wrong")
-                }
+    fun deleteTodoItem(todoItem: TodoItem) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                todoItemsRepository.deleteTodoItem(todoItemId)
+                _todoItemSaved.value = true
+            } catch (e: Exception) {
+                snackbarHostState.showSnackbar("Something went wrong")
             }
         }
     }
