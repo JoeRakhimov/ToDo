@@ -19,16 +19,18 @@ class TodoItemsRepository(
     private val preferences: SharedPreferences
 ) {
 
-    suspend fun getTodoItems(): List<TodoItem> {
+    suspend fun getTodoItems(): Pair<List<TodoItem>, Boolean> {
         return if(connectivity.isNetworkAvailable()){
-            todoApi.getTodoList().also {
+            val result = todoApi.getTodoList().also {
                 todoItemDao.insertAll(it.list)
                 preferences.edit().putInt(KEY_REVISION, it.revision ?: 0).apply()
                 preferences.edit().putBoolean(KEY_TODO_ITEMS_UP_TO_DATE, true).apply()
                 UpdateTodoItemsWorker.schedule()
             }.list.map { it.toTodoItem() }
+            Pair(result, true)
         } else {
-            todoItemDao.getAllTodoItems().map { it.toTodoItem() }
+            val result = todoItemDao.getAllTodoItems().map { it.toTodoItem() }
+            Pair(result, false)
         }
     }
 

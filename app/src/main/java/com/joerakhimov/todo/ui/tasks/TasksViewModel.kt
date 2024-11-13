@@ -51,7 +51,10 @@ class TasksViewModel(
         fetchTodoItemsJob = viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) {
             try {
                 val items = todoItemsRepository.getTodoItems()
-                _state.value = State.Success(items)
+                _state.value = State.Success(items.first)
+                if (!items.second) {
+                    snackbarHostState.showSnackbar("Отображаются ранее сохраненные данные.")
+                }
             } catch (e: Exception) {
                 observeConnectivity()
                 var secondsBeforeRetry = 30
