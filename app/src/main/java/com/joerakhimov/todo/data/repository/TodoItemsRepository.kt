@@ -7,6 +7,7 @@ import com.joerakhimov.todo.data.api.TodoApi
 import com.joerakhimov.todo.data.api.toTodoItem
 import com.joerakhimov.todo.data.api.toTodoItemDto
 import com.joerakhimov.todo.data.db.TodoItemDao
+import com.joerakhimov.todo.data.workmanager.UpdateTodoItemsWorker
 
 const val KEY_REVISION = "X-Last-Known-Revision"
 const val KEY_TODO_ITEMS_UP_TO_DATE = "todo_items_up_to_date"
@@ -24,6 +25,7 @@ class TodoItemsRepository(
                 todoItemDao.insertAll(it.list)
                 preferences.edit().putInt(KEY_REVISION, it.revision ?: 0).apply()
                 preferences.edit().putBoolean(KEY_TODO_ITEMS_UP_TO_DATE, true).apply()
+                UpdateTodoItemsWorker.schedule()
             }.list.map { it.toTodoItem() }
         } else {
             todoItemDao.getAllTodoItems().map { it.toTodoItem() }

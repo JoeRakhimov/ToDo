@@ -83,6 +83,7 @@ dependencies {
     implementation(libs.logging.interceptor)
     implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)
+    implementation(libs.androidx.work.runtime.ktx)
     debugImplementation(libs.library)
     releaseImplementation(libs.library.no.op)
     testImplementation(libs.junit)

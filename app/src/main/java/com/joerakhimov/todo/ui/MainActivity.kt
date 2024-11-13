@@ -1,4 +1,4 @@
-package com.joerakhimov.todo
+package com.joerakhimov.todo.ui
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
