@@ -1,4 +1,4 @@
-package com.joerakhimov.todo
+package com.joerakhimov.todo.ui
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -13,7 +13,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             ToDoTheme {
-                AppNavigation()
+                AppNavigation(applicationContext)
             }
         }
     }
