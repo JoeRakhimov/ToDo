@@ -15,4 +15,7 @@ interface TodoItemDao {
     @Query("SELECT * FROM todo_items")
     suspend fun getAllTodoItems(): List<TodoItemDto>
 
+    @Query("DELETE FROM todo_items") // Adjust to match your table name
+    suspend fun deleteAll()
+
 }

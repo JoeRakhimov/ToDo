@@ -4,7 +4,6 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.joerakhimov.todo.data.repository.ConnectivityRepository
 import com.joerakhimov.todo.data.model.Importance
 import com.joerakhimov.todo.data.model.TodoItem
 import com.joerakhimov.todo.data.repository.TodoItemsRepository
@@ -18,6 +17,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import java.io.IOException
 import java.util.Date
 import java.util.UUID
 
@@ -62,8 +62,7 @@ class TaskViewModel(
     private var fetchTodoItemJob: Job? = null
     fun fetchTodoItem() {
         _state.value = State.Loading
-        fetchTodoItemJob?.cancel() // to cancel previous job to avoid automatic retry after successful manual retry
-        todoItemsRepository.connectivity.unregister()
+        fetchTodoItemJob?.takeIf { it.isActive }?.cancel() // to cancel previous job to avoid automatic retry after successful manual retry
         fetchTodoItemJob = viewModelScope.launch(Dispatchers.IO) {
             try {
                 val todoItem = todoItemsRepository.getTodoItem(todoItemId)
@@ -72,22 +71,28 @@ class TaskViewModel(
                 observeConnectivity()
                 var secondsBeforeRetry = 30
                 repeat(secondsBeforeRetry) {
-                    _state.value = State.Error("${e.getHumanReadableErrorMessage()}. Повторная попытка через $secondsBeforeRetry секунд ...")
+                    _state.value =
+                        State.Error("${e.getHumanReadableErrorMessage()}. Повторная попытка через $secondsBeforeRetry секунд ...", e)
                     delay(1000)
-                    secondsBeforeRetry -= 1
+                    secondsBeforeRetry--
                 }
                 fetchTodoItem()
             }
         }
     }
 
+    private var observeConnectivityJob: Job? = null
     private suspend fun observeConnectivity() {
-        viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) {
+        observeConnectivityJob?.takeIf { it.isActive }?.cancel()
+        observeConnectivityJob = viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) {
             todoItemsRepository.connectivity.register()
             todoItemsRepository.connectivity.isConnected.collect { isConnected ->
-                if(isConnected){
-                    if(state.value is State.Error){
-                        fetchTodoItem()
+                if (isConnected) {
+                    val state = state.value
+                    if(state is State.Error){
+                        if(state.exception is IOException){
+                            fetchTodoItem()
+                        }
                     }
                 }
             }
@@ -145,6 +150,7 @@ class TaskViewModel(
 
     override fun onCleared() {
         super.onCleared()
+        observeConnectivityJob?.takeIf { it.isActive }?.cancel()
         todoItemsRepository.connectivity.unregister()
     }
 

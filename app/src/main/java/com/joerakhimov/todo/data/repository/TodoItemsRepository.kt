@@ -8,6 +8,7 @@ import com.joerakhimov.todo.data.api.toTodoItem
 import com.joerakhimov.todo.data.api.toTodoItemDto
 import com.joerakhimov.todo.data.db.TodoItemDao
 import com.joerakhimov.todo.data.workmanager.UpdateTodoItemsWorker
+import java.io.IOException
 
 const val KEY_REVISION = "X-Last-Known-Revision"
 const val KEY_TODO_ITEMS_UP_TO_DATE = "todo_items_up_to_date"
@@ -22,6 +23,7 @@ class TodoItemsRepository(
     suspend fun getTodoItems(): Pair<List<TodoItem>, Boolean> {
         return if(connectivity.isNetworkAvailable()){
             val result = todoApi.getTodoList().also {
+                todoItemDao.deleteAll()
                 todoItemDao.insertAll(it.list)
                 preferences.edit().putInt(KEY_REVISION, it.revision ?: 0).apply()
                 preferences.edit().putBoolean(KEY_TODO_ITEMS_UP_TO_DATE, true).apply()
@@ -29,8 +31,12 @@ class TodoItemsRepository(
             }.list.map { it.toTodoItem() }
             Pair(result, true)
         } else {
-            val result = todoItemDao.getAllTodoItems().map { it.toTodoItem() }
-            Pair(result, false)
+            if(isTodoItemsUpToDate()){ // check if data has been loaded before from the API
+                val result = todoItemDao.getAllTodoItems().map { it.toTodoItem() }
+                Pair(result, false)
+            } else {
+                throw IOException("No internet connection")
+            }
         }
     }
 

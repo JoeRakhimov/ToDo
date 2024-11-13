@@ -4,7 +4,6 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.joerakhimov.todo.data.repository.ConnectivityRepository
 import com.joerakhimov.todo.data.model.TodoItem
 import com.joerakhimov.todo.data.repository.TodoItemsRepository
 import com.joerakhimov.todo.ui.common.State
@@ -30,8 +29,8 @@ class TasksViewModel(
     private val coroutineExceptionHandler = CoroutineExceptionHandler { _, exception ->
         viewModelScope.launch(Dispatchers.IO) {
             var secondsBeforeRetry = 30
-            repeat(secondsBeforeRetry * 1000) { // count 30 seconds
-                _state.value = State.Error("${exception.getHumanReadableErrorMessage()}. Повторная попытка через $secondsBeforeRetry секунд")
+            repeat(secondsBeforeRetry) { // count 30 seconds
+                _state.value = State.Error("${exception.getHumanReadableErrorMessage()}. Повторная попытка через $secondsBeforeRetry секунд", exception)
                 delay(1000)
                 secondsBeforeRetry -= 1
             }
@@ -59,7 +58,7 @@ class TasksViewModel(
                 observeConnectivity()
                 var secondsBeforeRetry = 30
                 repeat(secondsBeforeRetry) {
-                    _state.value = State.Error("${e.getHumanReadableErrorMessage()}. Повторная попытка через $secondsBeforeRetry секунд ...")
+                    _state.value = State.Error("${e.getHumanReadableErrorMessage()}. Повторная попытка через $secondsBeforeRetry секунд ...", e)
                     delay(1000)
                     secondsBeforeRetry -= 1
                 }
@@ -91,8 +90,11 @@ class TasksViewModel(
         val currentState = state.value
         if (currentState is State.Success) {
             viewModelScope.launch(Dispatchers.IO) {
+                val listBeforeUpdate = currentState.data
                 val updatedList = currentState.data.map {
-                    if (it.id == todoItem.id) todoItem
+                    if (it.id == todoItem.id){
+                        todoItem
+                    }
                     else it
                 }
                 _state.value = State.Success(updatedList)
@@ -103,6 +105,7 @@ class TasksViewModel(
                         )
                     )
                 } catch (e: Exception) {
+                    _state.value = State.Success(listBeforeUpdate)
                     snackbarHostState.showSnackbar(e.getHumanReadableErrorMessage())
                 }
             }
