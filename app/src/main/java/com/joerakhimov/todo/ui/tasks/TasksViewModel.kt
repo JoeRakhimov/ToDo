@@ -1,4 +1,4 @@
-package com.joerakhimov.todo.tasks
+package com.joerakhimov.todo.ui.tasks
 
 import androidx.compose.material3.SnackbarHostState
 import androidx.lifecycle.ViewModel

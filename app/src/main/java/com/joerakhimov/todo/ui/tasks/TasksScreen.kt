@@ -1,4 +1,4 @@
-package com.joerakhimov.todo.tasks
+package com.joerakhimov.todo.ui.tasks
 
 import android.content.Context
 import android.content.res.Configuration
@@ -68,8 +68,8 @@ fun TasksScreen(
     viewModel: TasksViewModel = viewModel<TasksViewModel>(
         factory = TasksViewModelFactory(repository)
     ),
-    onAddNewTaskButtonClick: () -> Unit = {},
-    onTaskClick: (taskId: String) -> Unit = {}
+    onAddNewTodoButtonClick: () -> Unit = {},
+    onTodoClick: (todoId: String) -> Unit = {}
 ) {
 
     val snackbarHostState = viewModel.snackbarHostState
@@ -77,7 +77,7 @@ fun TasksScreen(
     val topAppBarScrollBehavior =
         TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
     val todoItems by viewModel.todoItems.collectAsState()
-    var areCompletedTasksAreShown by rememberSaveable { mutableStateOf(false) }
+    var areCompletedTodosAreShown by rememberSaveable { mutableStateOf(false) }
 
     LaunchedEffect(navController.currentBackStackEntry) {
         val currentRoute = navController.currentBackStackEntry?.destination?.route
@@ -92,19 +92,19 @@ fun TasksScreen(
             TasksTopAppBar(
                 topAppBarScrollBehavior,
                 todoItems,
-                areCompletedTasksAreShown,
-                onToggleShowCompleted = { areCompletedTasksAreShown = !areCompletedTasksAreShown })
+                areCompletedTodosAreShown,
+                onToggleShowCompleted = { areCompletedTodosAreShown = !areCompletedTodosAreShown })
         },
-        floatingActionButton = { AddTaskButton(onClick = onAddNewTaskButtonClick) },
+        floatingActionButton = { AddTodoButton(onClick = onAddNewTodoButtonClick) },
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
     ) { paddingValues ->
         TaskList(
-            todoItems = todoItems,
-            showCompletedTasks = areCompletedTasksAreShown,
-            onTaskClick = onTaskClick,
+            todoList = todoItems,
+            showCompletedTodoList = areCompletedTodosAreShown,
+            onTodoClick = onTodoClick,
             paddingValues = paddingValues,
-            onAddNewTaskButtonClick = onAddNewTaskButtonClick,
-            onTaskCompletedChange = {
+            onAddNewTodoButtonClick = onAddNewTodoButtonClick,
+            onTodoCompletedChange = {
                 viewModel.completeTodoItem(it)
             }
         )
@@ -177,7 +177,7 @@ fun TasksTopAppBar(
 }
 
 @Composable
-fun AddTaskButton(onClick: () -> Unit) {
+fun AddTodoButton(onClick: () -> Unit) {
     FloatingActionButton(
         onClick = onClick,
         containerColor = MaterialTheme.colorScheme.primary,
@@ -193,12 +193,12 @@ fun AddTaskButton(onClick: () -> Unit) {
 
 @Composable
 fun TaskList(
-    todoItems: List<TodoItem>,
-    showCompletedTasks: Boolean,
-    onTaskClick: (taskId: String) -> Unit,
+    todoList: List<TodoItem>,
+    showCompletedTodoList: Boolean,
+    onTodoClick: (todoId: String) -> Unit,
     paddingValues: PaddingValues,
-    onAddNewTaskButtonClick: () -> Unit,
-    onTaskCompletedChange: (todo: TodoItem) -> Unit
+    onAddNewTodoButtonClick: () -> Unit,
+    onTodoCompletedChange: (todo: TodoItem) -> Unit
 ) {
     Surface(
         modifier = Modifier
@@ -212,12 +212,12 @@ fun TaskList(
             item { Spacer(modifier = Modifier.padding(top = 16.dp)) }
 
             val filteredItems =
-                if (showCompletedTasks) todoItems else todoItems.filter { !it.isCompleted }
+                if (showCompletedTodoList) todoList else todoList.filter { !it.isCompleted }
             items(filteredItems) { item ->
                 TodoItemView(
                     todoItem = item,
-                    onClick = { onTaskClick(it) },
-                    onCheckboxCheckedChange = onTaskCompletedChange
+                    onClick = { onTodoClick(it) },
+                    onCheckboxCheckedChange = onTodoCompletedChange
                 )
             }
 
@@ -225,7 +225,7 @@ fun TaskList(
                 Box(
                     Modifier
                         .fillMaxWidth()
-                        .clickable { onAddNewTaskButtonClick() }
+                        .clickable { onAddNewTodoButtonClick() }
                         .padding(start = 56.dp, top = 14.dp, bottom = 24.dp)
                 ) {
                     Text(

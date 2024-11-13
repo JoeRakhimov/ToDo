@@ -9,17 +9,17 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.joerakhimov.todo.data.api.ApiServiceProvider
 import com.joerakhimov.todo.data.TodoItemsRepository
-import com.joerakhimov.todo.task.TaskScreen
-import com.joerakhimov.todo.tasks.TasksScreen
+import com.joerakhimov.todo.ui.task.TaskScreen
+import com.joerakhimov.todo.ui.tasks.TasksScreen
 
-const val KEY_TASK_ID = "taskId"
-const val DEFAULT_TASK_ID = ""
+const val KEY_TODO_ID = "todoId"
+const val DEFAULT_TODO_ID = ""
 
 const val PREFERENCES_NAME = "TodoPreferences"
 
 sealed class Screen(val route: String) {
     object Tasks : Screen("tasks")
-    object Task : Screen("task/{$KEY_TASK_ID}")
+    object Task: Screen("task")
 }
 
 @Composable
@@ -35,21 +35,21 @@ fun AppNavigation(context: Context) {
         startDestination = Screen.Tasks.route
     ) {
 
-        // Route for tasks list
+        // Route for todo list
         composable(route = Screen.Tasks.route) {
             TasksScreen(
                 navController = navController,
                 repository = repository,
-                onAddNewTaskButtonClick = {
+                onAddNewTodoButtonClick = {
                     navController.navigate(Screen.Task.route)
                 },
-                onTaskClick = { taskId ->
-                    navController.navigate("${Screen.Task.route}/$taskId")
+                onTodoClick = { todoId ->
+                    navController.navigate("${Screen.Task.route}/$todoId")
                 }
             )
         }
 
-        // Route for adding a new task
+        // Route for adding a new todo
         composable(route = Screen.Task.route) {
             TaskScreen(
                 repository = repository,
@@ -57,14 +57,14 @@ fun AppNavigation(context: Context) {
             )
         }
 
-        // Route for editing an existing task
+        // Route for editing an existing todo
         composable(
-            route = "${Screen.Task.route}/{$KEY_TASK_ID}",
-            arguments = listOf(navArgument(KEY_TASK_ID) { defaultValue = DEFAULT_TASK_ID })
+            route = "${Screen.Task.route}/{$KEY_TODO_ID}",
+            arguments = listOf(navArgument(KEY_TODO_ID) { defaultValue = DEFAULT_TODO_ID })
         ) { backStackEntry ->
-            val taskId = backStackEntry.arguments?.getString(KEY_TASK_ID) ?: DEFAULT_TASK_ID
+            val todoId = backStackEntry.arguments?.getString(KEY_TODO_ID) ?: DEFAULT_TODO_ID
             TaskScreen(
-                taskId = taskId,
+                todoId = todoId,
                 repository = repository,
                 onExit = { navController.popBackStack() }
             )

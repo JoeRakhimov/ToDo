@@ -1,4 +1,4 @@
-package com.joerakhimov.todo.tasks
+package com.joerakhimov.todo.ui.tasks
 
 import android.content.res.Configuration
 import androidx.compose.foundation.Image
@@ -33,7 +33,7 @@ import java.util.Locale
 @Composable
 fun TodoItemView(
     todoItem: TodoItem,
-    onClick: (taskId: String) -> Unit = {},
+    onClick: (todoId: String) -> Unit = {},
     onCheckboxCheckedChange: (TodoItem) -> Unit = {}
 ) {
     val checkboxColors = getCheckboxColors(todoItem)

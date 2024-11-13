@@ -1,8 +1,8 @@
 package com.joerakhimov.todo.data.api
 
-import com.joerakhimov.todo.data.dto.TaskRequestDto
-import com.joerakhimov.todo.data.dto.TaskResponseDto
-import com.joerakhimov.todo.data.dto.TasksResponseDto
+import com.joerakhimov.todo.data.dto.TodoRequestDto
+import com.joerakhimov.todo.data.dto.TodoResponseDto
+import com.joerakhimov.todo.data.dto.TodoListResponseDto
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
@@ -14,28 +14,28 @@ import retrofit2.http.Path
 interface TodoApi {
 
     @GET("list")
-    suspend fun getTasks(): TasksResponseDto
+    suspend fun getTodoList(): TodoListResponseDto
 
     @GET("list/{id}")
-    suspend fun getTask(@Path ("id") id: String): TaskResponseDto
+    suspend fun getTodo(@Path ("id") id: String): TodoResponseDto
 
     @POST("list")
-    suspend fun addTask(
+    suspend fun addTodo(
         @Header("X-Last-Known-Revision") revision: Int,
-        @Body request: TaskRequestDto
-    ): TaskResponseDto
+        @Body request: TodoRequestDto
+    ): TodoResponseDto
 
     @PUT("list/{id}")
-    suspend fun updateTask(
+    suspend fun updateTodo(
         @Path ("id") id: String,
         @Header("X-Last-Known-Revision") revision: Int,
-        @Body task: TaskRequestDto):
-            TaskResponseDto
+        @Body request: TodoRequestDto):
+            TodoResponseDto
 
     @DELETE("list/{id}")
-    suspend fun deleteTask(
+    suspend fun deleteTodo(
         @Path ("id") id: String,
         @Header("X-Last-Known-Revision") revision: Int):
-            TaskResponseDto
+            TodoResponseDto
 
 }

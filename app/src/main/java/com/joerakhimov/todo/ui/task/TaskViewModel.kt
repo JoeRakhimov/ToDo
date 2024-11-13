@@ -1,4 +1,4 @@
-package com.joerakhimov.todo.task
+package com.joerakhimov.todo.ui.task
 
 import androidx.compose.material3.SnackbarHostState
 import androidx.lifecycle.ViewModel
@@ -7,7 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.joerakhimov.todo.data.Importance
 import com.joerakhimov.todo.data.TodoItem
 import com.joerakhimov.todo.data.TodoItemsRepository
-import com.joerakhimov.todo.navigation.DEFAULT_TASK_ID
+import com.joerakhimov.todo.navigation.DEFAULT_TODO_ID
 import com.joerakhimov.todo.ui.ScreenState
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
@@ -71,7 +71,7 @@ class TaskViewModel(
     val todoItemSaved: StateFlow<Boolean> = _todoItemSaved
 
     init {
-        if (todoItemId != DEFAULT_TASK_ID) {
+        if (todoItemId != DEFAULT_TODO_ID) {
             fetchTodoItem()
         }
     }

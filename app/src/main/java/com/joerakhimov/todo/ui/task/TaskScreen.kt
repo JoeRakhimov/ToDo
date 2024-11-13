@@ -1,8 +1,7 @@
-package com.joerakhimov.todo.task
+package com.joerakhimov.todo.ui.task
 
 import android.content.Context
 import android.content.res.Configuration
-import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -63,7 +62,7 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.joerakhimov.todo.navigation.DEFAULT_TASK_ID
+import com.joerakhimov.todo.navigation.DEFAULT_TODO_ID
 import com.joerakhimov.todo.R
 import com.joerakhimov.todo.data.api.ApiServiceProvider
 import com.joerakhimov.todo.data.Importance
@@ -75,7 +74,6 @@ import com.joerakhimov.todo.ui.theme.ToDoTheme
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import java.util.UUID
 
 sealed class TaskScreenMode {
     object NewTask : TaskScreenMode()
@@ -85,7 +83,7 @@ sealed class TaskScreenMode {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TaskScreen(
-    taskId: String = DEFAULT_TASK_ID,
+    todoId: String = DEFAULT_TODO_ID,
     repository: TodoItemsRepository = TodoItemsRepository(
         ApiServiceProvider.provideTodoApi(LocalContext.current),
         LocalContext.current.getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE)
@@ -93,7 +91,7 @@ fun TaskScreen(
     viewModel: TaskViewModel = viewModel<TaskViewModel>(
         factory = TaskViewModelFactory(
             repository,
-            taskId
+            todoId
         )
     ),
     onExit: () -> Unit = {}
@@ -111,7 +109,7 @@ fun TaskScreen(
             }
         }
         is ScreenState.Success -> {
-            TaskScreenContent(taskId, screenState.data, viewModel, onExit)
+            TaskScreenContent(todoId, screenState.data, viewModel, onExit)
         }
         is ScreenState.Error -> {
             Box(
@@ -128,13 +126,13 @@ fun TaskScreen(
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 private fun TaskScreenContent(
-    taskId: String,
-    todoItem: TodoItem,
+    todoId: String,
+    todo: TodoItem,
     viewModel: TaskViewModel,
     onExit: () -> Unit
 ) {
-    val taskMode =
-        if (taskId == DEFAULT_TASK_ID) TaskScreenMode.NewTask else TaskScreenMode.EditTask
+    val screenMode =
+        if (todoId == DEFAULT_TODO_ID) TaskScreenMode.NewTask else TaskScreenMode.EditTask
     val todoItemSaved by viewModel.todoItemSaved.collectAsState()
     val context = LocalContext.current
 
@@ -153,8 +151,8 @@ private fun TaskScreenContent(
                     title = {},
                     navigationIcon = { IconButton(onClick = onExit) { CloseIcon() } },
                     actions = {
-                        SaveAction(todoItem, taskMode, onSave = {
-                            when (taskMode) {
+                        SaveAction(todo, onSave = {
+                            when (screenMode) {
                                 is TaskScreenMode.NewTask -> {
                                     viewModel.addTodoItem(it)
                                 }
@@ -162,15 +160,15 @@ private fun TaskScreenContent(
                                     viewModel.updateTodoItem(it)
                                 }
                             }
-                        }, onExit, context)
+                        })
                     }
                 )
             }
         },
         content = { padding ->
             TaskDetailsContent(
-                task = todoItem,
-                screenMode = taskMode,
+                todo = todo,
+                screenMode = screenMode,
                 onDescriptionChange = {
                     viewModel.updateTodoItemDescription(it)
 //                    todoItem = todoItem?.copy(text = it)
@@ -187,27 +185,10 @@ private fun TaskScreenContent(
     )
 }
 
-
-private fun getTask(repository: TodoItemsRepository, taskId: String): TodoItem {
-//    return repository.getTodoItems().find { it.id == taskId } ?:
-    return TodoItem(
-        id = UUID.randomUUID().toString(),
-        text = "",
-        importance = Importance.BASIC,
-        deadline = null,
-        isCompleted = false,
-        createdAt = Date(),
-        modifiedAt = null
-    )
-}
-
 @Composable
 private fun SaveAction(
-    task: TodoItem,
-    screenMode: TaskScreenMode,
-    onSave: (task: TodoItem) -> Unit,
-    onExit: () -> Unit,
-    context: Context
+    todo: TodoItem,
+    onSave: (todo: TodoItem) -> Unit,
 ) {
     Text(
         stringResource(R.string.save).uppercase(),
@@ -216,36 +197,14 @@ private fun SaveAction(
         modifier = Modifier
             .padding(16.dp)
             .clickable {
-//                if (task.text.isEmpty()) {
-//                    Toast
-//                        .makeText(
-//                            context,
-//                            context.getString(R.string.task_description_cannot_be_empty),
-//                            Toast.LENGTH_SHORT
-//                        )
-//                        .show()
-//                    return@clickable
-//                }
-                onSave(task)
-//                when (screenMode) {
-//                    is TaskScreenMode.NewTask -> {
-////                        repository.addTodoItem(task)
-//                        onSave(task)
-//                    }
-//
-//                    is TaskScreenMode.EditTask -> {
-//                        task.modifiedAt = Date()
-//                        repository.updateTodoItem(task)
-//                    }
-//                }
-//                onExit()
+                onSave(todo)
             }
     )
 }
 
 @Composable
 private fun TaskDetailsContent(
-    task: TodoItem,
+    todo: TodoItem,
     screenMode: TaskScreenMode,
     onDescriptionChange: (String) -> Unit,
     onDeleteButtonClick: (TodoItem) -> Unit,
@@ -260,17 +219,17 @@ private fun TaskDetailsContent(
             .verticalScroll(scrollState)
             .padding(16.dp)
     ) {
-        TaskDescriptionField(task, onValueChange = onDescriptionChange)
+        TaskDescriptionField(todo, onValueChange = onDescriptionChange)
 
-        ImportanceSection(task = task)
-
-        SectionDivider()
-
-        DeadlineSection(task = task)
+        ImportanceSection(todo = todo)
 
         SectionDivider()
 
-        DeleteSection(screenMode, task, onDeleteButtonClick)
+        DeadlineSection(todo = todo)
+
+        SectionDivider()
+
+        DeleteSection(screenMode, todo, onDeleteButtonClick)
     }
 }
 
@@ -284,14 +243,14 @@ private fun SectionDivider() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun TaskDescriptionField(task: TodoItem, onValueChange: (String) -> Unit) {
+private fun TaskDescriptionField(todo: TodoItem, onValueChange: (String) -> Unit) {
     Card(
         shape = RoundedCornerShape(8.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         modifier = Modifier.fillMaxWidth()
     ) {
         TextField(
-            value = task.text,
+            value = todo.text,
             onValueChange = { onValueChange(it) },
             placeholder = { Text(stringResource(R.string.what_to_do)) },
             textStyle = MaterialTheme.typography.bodyMedium,
@@ -316,7 +275,7 @@ private fun TaskDescriptionField(task: TodoItem, onValueChange: (String) -> Unit
 
 @Composable
 private fun ImportanceSection(
-    task: TodoItem
+    todo: TodoItem
 ) {
 
     val importanceMenuExpanded = remember { mutableStateOf(false) }
@@ -336,7 +295,7 @@ private fun ImportanceSection(
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
-                when (task.importance) {
+                when (todo.importance) {
                     Importance.LOW -> stringResource(R.string.low)
                     Importance.BASIC -> stringResource(R.string.normal)
                     Importance.IMPORTANT -> stringResource(R.string.urgent)
@@ -350,7 +309,7 @@ private fun ImportanceSection(
             expanded = importanceMenuExpanded.value,
             onDismissRequest = { importanceMenuExpanded.value = false },
             onImportanceSelected = {
-                task.importance = it
+                todo.importance = it
                 importanceMenuExpanded.value = false
             }
         )
@@ -396,10 +355,10 @@ private fun ImportanceDropdownMenu(
 
 @Composable
 private fun DeadlineSection(
-    task: TodoItem
+    todo: TodoItem
 ) {
 
-    val deadlineEnabled = remember { mutableStateOf(task.deadline != null) }
+    val deadlineEnabled = remember { mutableStateOf(todo.deadline != null) }
     val showDatePickerDialog = remember { mutableStateOf(false) }
 
     Box {
@@ -416,7 +375,7 @@ private fun DeadlineSection(
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onPrimary
                 )
-                task.deadline?.let {
+                todo.deadline?.let {
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
                         SimpleDateFormat("dd.MM.yyyy", Locale.getDefault()).format(it),
@@ -432,7 +391,7 @@ private fun DeadlineSection(
                     if (deadlineEnabled.value) {
                         showDatePickerDialog.value = true
                     } else {
-                        task.deadline = null
+                        todo.deadline = null
                     }
                 },
                 colors = SwitchDefaults.colors(
@@ -446,7 +405,7 @@ private fun DeadlineSection(
         }
 
         if (showDatePickerDialog.value) {
-            DeadlineDatePickerDialog(task, deadlineEnabled, showDatePickerDialog)
+            DeadlineDatePickerDialog(todo, deadlineEnabled, showDatePickerDialog)
         }
     }
 }
@@ -454,12 +413,12 @@ private fun DeadlineSection(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun DeadlineDatePickerDialog(
-    task: TodoItem,
+    todo: TodoItem,
     deadlineEnabled: MutableState<Boolean>,
     showDatePickerDialog: MutableState<Boolean>
 ) {
 
-    val initialSelectedDateMillis = task.deadline?.time
+    val initialSelectedDateMillis = todo.deadline?.time
     val datePickerState =
         rememberDatePickerState(initialSelectedDateMillis = initialSelectedDateMillis)
 
@@ -468,7 +427,7 @@ private fun DeadlineDatePickerDialog(
         confirmButton = {
             TextButton(onClick = {
                 datePickerState.selectedDateMillis?.let { selectedDateMillis ->
-                    task.deadline = Date(selectedDateMillis)
+                    todo.deadline = Date(selectedDateMillis)
                     deadlineEnabled.value = true
                 }
                 showDatePickerDialog.value = false
@@ -479,7 +438,7 @@ private fun DeadlineDatePickerDialog(
         dismissButton = {
             TextButton(onClick = {
                 showDatePickerDialog.value = false
-                deadlineEnabled.value = task.deadline != null
+                deadlineEnabled.value = todo.deadline != null
             }) {
                 Text(stringResource(R.string.cancel))
             }
@@ -495,7 +454,7 @@ private fun DeadlineDatePickerDialog(
 @Composable
 private fun DeleteSection(
     screenMode: TaskScreenMode,
-    task: TodoItem,
+    todo: TodoItem,
     onClick: (TodoItem) -> Unit
 ) {
     Row(
@@ -505,14 +464,14 @@ private fun DeleteSection(
             .then(
                 when (screenMode) {
                     is TaskScreenMode.NewTask -> Modifier
-                    is TaskScreenMode.EditTask -> Modifier.clickable { onClick(task) }
+                    is TaskScreenMode.EditTask -> Modifier.clickable { onClick(todo) }
                 }
             ),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Icon(
             Icons.Default.Delete,
-            contentDescription = "Delete",
+            contentDescription = stringResource(R.string.delete),
             tint = when (screenMode) {
                 is TaskScreenMode.NewTask -> MaterialTheme.colorScheme.onSurface
                 is TaskScreenMode.EditTask -> MaterialTheme.colorScheme.error
@@ -536,7 +495,7 @@ private fun DeleteSection(
 private fun CloseIcon() {
     Icon(
         Icons.Default.Close,
-        contentDescription = "Exit",
+        contentDescription = stringResource(R.string.close),
         tint = MaterialTheme.colorScheme.onPrimary
     )
 }

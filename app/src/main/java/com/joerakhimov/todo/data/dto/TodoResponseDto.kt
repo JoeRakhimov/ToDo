@@ -2,7 +2,7 @@ package com.joerakhimov.todo.data.dto
 
 import com.google.gson.annotations.SerializedName
 
-data class TaskResponseDto(
+data class TodoResponseDto(
 
 	@field:SerializedName("element")
 	val element: TodoItemDto,
