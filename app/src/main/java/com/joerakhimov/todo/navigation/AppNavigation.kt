@@ -35,7 +35,7 @@ fun AppNavigation(context: Context) {
         startDestination = Screen.Tasks.route
     ) {
 
-        // Route for todo list
+        // Route for task list
         composable(route = Screen.Tasks.route) {
             TasksScreen(
                 navController = navController,
@@ -49,7 +49,7 @@ fun AppNavigation(context: Context) {
             )
         }
 
-        // Route for adding a new todo
+        // Route for adding a new task
         composable(route = Screen.Task.route) {
             TaskScreen(
                 repository = repository,
@@ -57,7 +57,7 @@ fun AppNavigation(context: Context) {
             )
         }
 
-        // Route for editing an existing todo
+        // Route for editing an existing task
         composable(
             route = "${Screen.Task.route}/{$KEY_TODO_ID}",
             arguments = listOf(navArgument(KEY_TODO_ID) { defaultValue = DEFAULT_TODO_ID })

@@ -25,7 +25,6 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DropdownMenu
@@ -70,6 +69,8 @@ import com.joerakhimov.todo.data.TodoItem
 import com.joerakhimov.todo.data.TodoItemsRepository
 import com.joerakhimov.todo.navigation.PREFERENCES_NAME
 import com.joerakhimov.todo.ui.ScreenState
+import com.joerakhimov.todo.ui.common.ErrorView
+import com.joerakhimov.todo.ui.common.ProgressView
 import com.joerakhimov.todo.ui.theme.ToDoTheme
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -80,7 +81,6 @@ sealed class TaskScreenMode {
     object EditTask : TaskScreenMode()
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TaskScreen(
     todoId: String = DEFAULT_TODO_ID,
@@ -97,26 +97,18 @@ fun TaskScreen(
     onExit: () -> Unit = {}
 ) {
 
-    val screenState = viewModel.todoItem.collectAsState().value
+    val state = viewModel.state.collectAsState().value
 
-    when (screenState) {
+    when (state) {
         is ScreenState.Loading -> {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator()
-            }
+            ProgressView()
         }
         is ScreenState.Success -> {
-            TaskScreenContent(todoId, screenState.data, viewModel, onExit)
+            TaskScreenContent(todoId, state.data, viewModel, onExit)
         }
         is ScreenState.Error -> {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                Text("Error: ${screenState.message}")
+            ErrorView(state.message) {
+                viewModel.fetchTodoItem()
             }
         }
     }
@@ -133,7 +125,7 @@ private fun TaskScreenContent(
 ) {
     val screenMode =
         if (todoId == DEFAULT_TODO_ID) TaskScreenMode.NewTask else TaskScreenMode.EditTask
-    val todoItemSaved by viewModel.todoItemSaved.collectAsState()
+    val todoItemSaved by viewModel.operationOnTodoCompleted.collectAsState()
     val context = LocalContext.current
 
     val snackbarHostState = viewModel.snackbarHostState

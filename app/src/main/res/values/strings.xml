@@ -17,4 +17,5 @@
     <string name="add_task">Добавить задание</string>
     <string name="toggle_completed">Отображение завершенных задач</string>
     <string name="close">Закрыть</string>
+    <string name="retry">Повторить</string>
 </resources>

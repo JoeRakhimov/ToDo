@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.joerakhimov.todo.data.TodoItem
 import com.joerakhimov.todo.data.TodoItemsRepository
+import com.joerakhimov.todo.ui.ScreenState
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,8 +19,8 @@ import java.util.Date
 
 class TasksViewModel(private val todoItemsRepository: TodoItemsRepository) : ViewModel() {
 
-    private val _todoItems = MutableStateFlow<List<TodoItem>>(emptyList())
-    val todoItems: StateFlow<List<TodoItem>> = _todoItems
+    private val _state = MutableStateFlow<ScreenState<List<TodoItem>>>(ScreenState.Loading)
+    val state: StateFlow<ScreenState<List<TodoItem>>> = _state
 
     val snackbarHostState = SnackbarHostState()
 
@@ -42,8 +43,7 @@ class TasksViewModel(private val todoItemsRepository: TodoItemsRepository) : Vie
                     "Что-то пошло не так" // Something went wrong
                 }
             }
-
-            snackbarHostState.showSnackbar(errorMessage)
+            _state.value = ScreenState.Error(errorMessage)
         }
     }
 
@@ -51,10 +51,11 @@ class TasksViewModel(private val todoItemsRepository: TodoItemsRepository) : Vie
         fetchTodoItems()
     }
 
-    private fun fetchTodoItems() {
+    fun fetchTodoItems() {
+        _state.value = ScreenState.Loading
         viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) {
             val items = todoItemsRepository.getTodoItems() // Suspend function
-            _todoItems.value = items
+            _state.value = ScreenState.Success(items)
         }
     }
 
@@ -65,17 +66,20 @@ class TasksViewModel(private val todoItemsRepository: TodoItemsRepository) : Vie
     }
 
     fun completeTodoItem(todoItem: TodoItem) {
-        viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) {
-            val updatedList = _todoItems.value.map {
-                if (it.id == todoItem.id) todoItem
-                else it
-            }
-            _todoItems.value = updatedList
-            todoItemsRepository.updateTodoItem(
-                todoItem.id, todoItem.copy(
-                    modifiedAt = Date()
+        val currentState = state.value
+        if (currentState is ScreenState.Success) {
+            viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) {
+                val updatedList = currentState.data.map {
+                    if (it.id == todoItem.id) todoItem
+                    else it
+                }
+                _state.value = ScreenState.Success(updatedList)
+                todoItemsRepository.updateTodoItem(
+                    todoItem.id, todoItem.copy(
+                        modifiedAt = Date()
+                    )
                 )
-            )
+            }
         }
     }
 

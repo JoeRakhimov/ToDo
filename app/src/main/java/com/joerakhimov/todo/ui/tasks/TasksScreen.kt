@@ -26,6 +26,7 @@ import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
@@ -56,8 +57,10 @@ import com.joerakhimov.todo.data.api.ApiServiceProvider
 import com.joerakhimov.todo.data.TodoItemsRepository
 import com.joerakhimov.todo.navigation.PREFERENCES_NAME
 import com.joerakhimov.todo.navigation.Screen
+import com.joerakhimov.todo.ui.ScreenState
+import com.joerakhimov.todo.ui.common.ErrorView
+import com.joerakhimov.todo.ui.common.ProgressView
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TasksScreen(
     navController: NavHostController = rememberNavController(),
@@ -74,11 +77,6 @@ fun TasksScreen(
 
     val snackbarHostState = viewModel.snackbarHostState
 
-    val topAppBarScrollBehavior =
-        TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
-    val todoItems by viewModel.todoItems.collectAsState()
-    var areCompletedTodosAreShown by rememberSaveable { mutableStateOf(false) }
-
     LaunchedEffect(navController.currentBackStackEntry) {
         val currentRoute = navController.currentBackStackEntry?.destination?.route
         if (currentRoute == Screen.Tasks.route) {
@@ -86,14 +84,62 @@ fun TasksScreen(
         }
     }
 
+    val state = viewModel.state.collectAsState().value
+
+    when (state) {
+        is ScreenState.Loading -> {
+            ProgressView()
+        }
+
+        is ScreenState.Success -> {
+            TasksScreenContent(
+                state.data,
+                onAddNewTodoButtonClick,
+                snackbarHostState,
+                onTodoClick,
+                viewModel
+            )
+        }
+
+        is ScreenState.Error -> {
+            ErrorView(state.message) {
+                viewModel.fetchTodoItems()
+            }
+        }
+    }
+
+
+}
+
+
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun TasksScreenContent(
+    todoItems: List<TodoItem>,
+    onAddNewTodoButtonClick: () -> Unit,
+    snackbarHostState: SnackbarHostState,
+    onTodoClick: (todoId: String) -> Unit,
+    viewModel: TasksViewModel
+) {
+
+    val topAppBarScrollBehavior =
+        TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
+
+    var areCompletedTodosAreShown by rememberSaveable { mutableStateOf(false) }
+
     Scaffold(
-        modifier = Modifier.nestedScroll(topAppBarScrollBehavior.nestedScrollConnection).imePadding(),
+        modifier = Modifier
+            .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection)
+            .imePadding(),
         topBar = {
             TasksTopAppBar(
                 topAppBarScrollBehavior,
                 todoItems,
                 areCompletedTodosAreShown,
-                onToggleShowCompleted = { areCompletedTodosAreShown = !areCompletedTodosAreShown })
+                onToggleShowCompleted = {
+                    areCompletedTodosAreShown = !areCompletedTodosAreShown
+                })
         },
         floatingActionButton = { AddTodoButton(onClick = onAddNewTodoButtonClick) },
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },

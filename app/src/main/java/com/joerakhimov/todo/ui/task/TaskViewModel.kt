@@ -44,14 +44,13 @@ class TaskViewModel(
                     "Что-то пошло не так" // Something went wrong
                 }
             }
-
             snackbarHostState.showSnackbar(errorMessage)
         }
     }
 
     val snackbarHostState = SnackbarHostState()
 
-    private val _todoItem = MutableStateFlow<ScreenState<TodoItem>>(
+    private val _state = MutableStateFlow<ScreenState<TodoItem>>(
         ScreenState.Success(
             TodoItem(
                 id = generateUUID(),
@@ -65,10 +64,10 @@ class TaskViewModel(
             )
         )
     )
-    val todoItem: StateFlow<ScreenState<TodoItem>> = _todoItem
+    val state: StateFlow<ScreenState<TodoItem>> = _state
 
-    private val _todoItemSaved = MutableStateFlow(false)
-    val todoItemSaved: StateFlow<Boolean> = _todoItemSaved
+    private val _operationOnTodoCompleted = MutableStateFlow(false)
+    val operationOnTodoCompleted: StateFlow<Boolean> = _operationOnTodoCompleted
 
     init {
         if (todoItemId != DEFAULT_TODO_ID) {
@@ -76,12 +75,35 @@ class TaskViewModel(
         }
     }
 
-    private fun fetchTodoItem() {
+    fun fetchTodoItem() {
+        _state.value = ScreenState.Loading
         viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) {
-            val todoItem = todoItemsRepository.getTodoItem(todoItemId)
-            _todoItem.value = ScreenState.Success(todoItem)
+            try {
+                val todoItem = todoItemsRepository.getTodoItem(todoItemId)
+                _state.value = ScreenState.Success(todoItem)
+            } catch (e: Exception) {
+                val errorMessage: String = when (e) {
+                    is IOException -> {
+                        "Произошла ошибка сети."
+                    }
+
+                    is HttpException -> {
+                        "Произошла ошибка HTTP с кодом статуса: ${e.code()}"
+                    }
+
+                    is TimeoutException -> {
+                        "Запрос превысил время ожидания. Пожалуйста, попробуйте снова."
+                    }
+
+                    else -> {
+                        "Что-то пошло не так" // Something went wrong
+                    }
+                }
+                _state.value = ScreenState.Error(errorMessage)
+            }
         }
     }
+
 
     fun addTodoItem(todoItem: TodoItem) {
         viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) {
@@ -94,15 +116,15 @@ class TaskViewModel(
                     modifiedAt = Date(),
                 )
             )
-            _todoItemSaved.value = true
+            _operationOnTodoCompleted.value = true
         }
     }
 
     fun updateTodoItemDescription(description: String) {
-        val currentState = todoItem.value
+        val currentState = state.value
         if (currentState is ScreenState.Success) {
             val updatedTodo = currentState.data.copy(text = description)
-            _todoItem.value = ScreenState.Success(updatedTodo)
+            _state.value = ScreenState.Success(updatedTodo)
         }
     }
 
@@ -117,14 +139,14 @@ class TaskViewModel(
                     modifiedAt = Date(),
                 )
             )
-            _todoItemSaved.value = true
+            _operationOnTodoCompleted.value = true
         }
     }
 
     fun deleteTodoItem(todoItem: TodoItem) {
         viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) {
             todoItemsRepository.deleteTodoItem(todoItemId)
-            _todoItemSaved.value = true
+            _operationOnTodoCompleted.value = true
         }
     }
 
