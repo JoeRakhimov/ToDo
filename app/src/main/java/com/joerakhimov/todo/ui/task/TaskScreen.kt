@@ -68,7 +68,7 @@ import com.joerakhimov.todo.data.Importance
 import com.joerakhimov.todo.data.TodoItem
 import com.joerakhimov.todo.data.TodoItemsRepository
 import com.joerakhimov.todo.navigation.PREFERENCES_NAME
-import com.joerakhimov.todo.ui.ScreenState
+import com.joerakhimov.todo.ui.common.State
 import com.joerakhimov.todo.ui.common.ErrorView
 import com.joerakhimov.todo.ui.common.ProgressView
 import com.joerakhimov.todo.ui.theme.ToDoTheme
@@ -100,13 +100,13 @@ fun TaskScreen(
     val state = viewModel.state.collectAsState().value
 
     when (state) {
-        is ScreenState.Loading -> {
+        is State.Loading -> {
             ProgressView()
         }
-        is ScreenState.Success -> {
+        is State.Success -> {
             TaskScreenContent(todoId, state.data, viewModel, onExit)
         }
-        is ScreenState.Error -> {
+        is State.Error -> {
             ErrorView(state.message) {
                 viewModel.fetchTodoItem()
             }

@@ -6,44 +6,25 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.joerakhimov.todo.data.TodoItem
 import com.joerakhimov.todo.data.TodoItemsRepository
-import com.joerakhimov.todo.ui.ScreenState
+import com.joerakhimov.todo.ui.common.State
+import com.joerakhimov.todo.ui.common.getHumanReadableErrorMessage
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import java.util.concurrent.TimeoutException
-import retrofit2.HttpException
-import java.io.IOException
 import java.util.Date
 
 class TasksViewModel(private val todoItemsRepository: TodoItemsRepository) : ViewModel() {
 
-    private val _state = MutableStateFlow<ScreenState<List<TodoItem>>>(ScreenState.Loading)
-    val state: StateFlow<ScreenState<List<TodoItem>>> = _state
+    private val _state = MutableStateFlow<State<List<TodoItem>>>(State.Loading)
+    val state: StateFlow<State<List<TodoItem>>> = _state
 
     val snackbarHostState = SnackbarHostState()
 
     private val coroutineExceptionHandler = CoroutineExceptionHandler { _, exception ->
         viewModelScope.launch(Dispatchers.IO) {
-            val errorMessage: String = when (exception) {
-                is IOException -> {
-                    "Произошла ошибка сети."
-                }
-
-                is HttpException -> {
-                    "Произошла ошибка HTTP с кодом статуса: ${exception.code()}"
-                }
-
-                is TimeoutException -> {
-                    "Запрос превысил время ожидания. Пожалуйста, попробуйте снова."
-                }
-
-                else -> {
-                    "Что-то пошло не так" // Something went wrong
-                }
-            }
-            _state.value = ScreenState.Error(errorMessage)
+            _state.value = State.Error(exception.getHumanReadableErrorMessage())
         }
     }
 
@@ -52,10 +33,10 @@ class TasksViewModel(private val todoItemsRepository: TodoItemsRepository) : Vie
     }
 
     fun fetchTodoItems() {
-        _state.value = ScreenState.Loading
+        _state.value = State.Loading
         viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) {
             val items = todoItemsRepository.getTodoItems() // Suspend function
-            _state.value = ScreenState.Success(items)
+            _state.value = State.Success(items)
         }
     }
 
@@ -67,13 +48,13 @@ class TasksViewModel(private val todoItemsRepository: TodoItemsRepository) : Vie
 
     fun completeTodoItem(todoItem: TodoItem) {
         val currentState = state.value
-        if (currentState is ScreenState.Success) {
+        if (currentState is State.Success) {
             viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) {
                 val updatedList = currentState.data.map {
                     if (it.id == todoItem.id) todoItem
                     else it
                 }
-                _state.value = ScreenState.Success(updatedList)
+                _state.value = State.Success(updatedList)
                 todoItemsRepository.updateTodoItem(
                     todoItem.id, todoItem.copy(
                         modifiedAt = Date()

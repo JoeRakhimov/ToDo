@@ -57,7 +57,7 @@ import com.joerakhimov.todo.data.api.ApiServiceProvider
 import com.joerakhimov.todo.data.TodoItemsRepository
 import com.joerakhimov.todo.navigation.PREFERENCES_NAME
 import com.joerakhimov.todo.navigation.Screen
-import com.joerakhimov.todo.ui.ScreenState
+import com.joerakhimov.todo.ui.common.State
 import com.joerakhimov.todo.ui.common.ErrorView
 import com.joerakhimov.todo.ui.common.ProgressView
 
@@ -87,11 +87,11 @@ fun TasksScreen(
     val state = viewModel.state.collectAsState().value
 
     when (state) {
-        is ScreenState.Loading -> {
+        is State.Loading -> {
             ProgressView()
         }
 
-        is ScreenState.Success -> {
+        is State.Success -> {
             TasksScreenContent(
                 state.data,
                 onAddNewTodoButtonClick,
@@ -101,7 +101,7 @@ fun TasksScreen(
             )
         }
 
-        is ScreenState.Error -> {
+        is State.Error -> {
             ErrorView(state.message) {
                 viewModel.fetchTodoItems()
             }

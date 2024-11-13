@@ -8,17 +8,15 @@ import com.joerakhimov.todo.data.Importance
 import com.joerakhimov.todo.data.TodoItem
 import com.joerakhimov.todo.data.TodoItemsRepository
 import com.joerakhimov.todo.navigation.DEFAULT_TODO_ID
-import com.joerakhimov.todo.ui.ScreenState
+import com.joerakhimov.todo.ui.common.State
+import com.joerakhimov.todo.ui.common.getHumanReadableErrorMessage
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import java.io.IOException
 import java.util.Date
 import java.util.UUID
-import java.util.concurrent.TimeoutException
-import retrofit2.HttpException
 
 class TaskViewModel(
     private val todoItemsRepository: TodoItemsRepository,
@@ -27,31 +25,14 @@ class TaskViewModel(
 
     private val coroutineExceptionHandler = CoroutineExceptionHandler { _, exception ->
         viewModelScope.launch(Dispatchers.IO) {
-            val errorMessage: String = when (exception) {
-                is IOException -> {
-                    "Произошла ошибка сети."
-                }
-
-                is HttpException -> {
-                    "Произошла ошибка HTTP с кодом статуса: ${exception.code()}"
-                }
-
-                is TimeoutException -> {
-                    "Запрос превысил время ожидания. Пожалуйста, попробуйте снова."
-                }
-
-                else -> {
-                    "Что-то пошло не так" // Something went wrong
-                }
-            }
-            snackbarHostState.showSnackbar(errorMessage)
+            snackbarHostState.showSnackbar(exception.getHumanReadableErrorMessage())
         }
     }
 
     val snackbarHostState = SnackbarHostState()
 
-    private val _state = MutableStateFlow<ScreenState<TodoItem>>(
-        ScreenState.Success(
+    private val _state = MutableStateFlow<State<TodoItem>>(
+        State.Success(
             TodoItem(
                 id = generateUUID(),
                 text = "",
@@ -64,7 +45,7 @@ class TaskViewModel(
             )
         )
     )
-    val state: StateFlow<ScreenState<TodoItem>> = _state
+    val state: StateFlow<State<TodoItem>> = _state
 
     private val _operationOnTodoCompleted = MutableStateFlow(false)
     val operationOnTodoCompleted: StateFlow<Boolean> = _operationOnTodoCompleted
@@ -76,30 +57,13 @@ class TaskViewModel(
     }
 
     fun fetchTodoItem() {
-        _state.value = ScreenState.Loading
+        _state.value = State.Loading
         viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) {
             try {
                 val todoItem = todoItemsRepository.getTodoItem(todoItemId)
-                _state.value = ScreenState.Success(todoItem)
+                _state.value = State.Success(todoItem)
             } catch (e: Exception) {
-                val errorMessage: String = when (e) {
-                    is IOException -> {
-                        "Произошла ошибка сети."
-                    }
-
-                    is HttpException -> {
-                        "Произошла ошибка HTTP с кодом статуса: ${e.code()}"
-                    }
-
-                    is TimeoutException -> {
-                        "Запрос превысил время ожидания. Пожалуйста, попробуйте снова."
-                    }
-
-                    else -> {
-                        "Что-то пошло не так" // Something went wrong
-                    }
-                }
-                _state.value = ScreenState.Error(errorMessage)
+                _state.value = State.Error(e.getHumanReadableErrorMessage())
             }
         }
     }
@@ -122,9 +86,9 @@ class TaskViewModel(
 
     fun updateTodoItemDescription(description: String) {
         val currentState = state.value
-        if (currentState is ScreenState.Success) {
+        if (currentState is State.Success) {
             val updatedTodo = currentState.data.copy(text = description)
-            _state.value = ScreenState.Success(updatedTodo)
+            _state.value = State.Success(updatedTodo)
         }
     }
 
