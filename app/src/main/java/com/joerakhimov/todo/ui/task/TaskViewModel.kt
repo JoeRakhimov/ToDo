@@ -23,7 +23,6 @@ import java.util.UUID
 
 class TaskViewModel(
     private val todoItemsRepository: TodoItemsRepository,
-    private val connectivityRepository: ConnectivityRepository,
     private val todoItemId: String
 ) : ViewModel() {
 
@@ -42,10 +41,10 @@ class TaskViewModel(
                 text = "",
                 importance = Importance.BASIC,
                 deadline = null,
-                isCompleted = false,
+                done = false,
                 createdAt = Date(),
-                modifiedAt = null,
-                changedBy = "device_123"
+                changedAt = null,
+                lastUpdatedBy = "device_123"
             )
         )
     )
@@ -64,7 +63,7 @@ class TaskViewModel(
     fun fetchTodoItem() {
         _state.value = State.Loading
         fetchTodoItemJob?.cancel() // to cancel previous job to avoid automatic retry after successful manual retry
-        connectivityRepository.unregister()
+        todoItemsRepository.connectivity.unregister()
         fetchTodoItemJob = viewModelScope.launch(Dispatchers.IO) {
             try {
                 val todoItem = todoItemsRepository.getTodoItem(todoItemId)
@@ -84,8 +83,8 @@ class TaskViewModel(
 
     private suspend fun observeConnectivity() {
         viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) {
-            connectivityRepository.register()
-            connectivityRepository.isConnected.collect { isConnected ->
+            todoItemsRepository.connectivity.register()
+            todoItemsRepository.connectivity.isConnected.collect { isConnected ->
                 if(isConnected){
                     if(state.value is State.Error){
                         fetchTodoItem()
@@ -103,7 +102,7 @@ class TaskViewModel(
             }
             todoItemsRepository.addTodoItem(
                 todoItem.copy(
-                    modifiedAt = Date(),
+                    changedAt = Date(),
                 )
             )
             _operationOnTodoCompleted.value = true
@@ -126,7 +125,7 @@ class TaskViewModel(
             }
             todoItemsRepository.updateTodoItem(
                 todoItemId, todoItem.copy(
-                    modifiedAt = Date(),
+                    changedAt = Date(),
                 )
             )
             _operationOnTodoCompleted.value = true
@@ -146,19 +145,18 @@ class TaskViewModel(
 
     override fun onCleared() {
         super.onCleared()
-        connectivityRepository.unregister()
+        todoItemsRepository.connectivity.unregister()
     }
 
 }
 
 class TaskViewModelFactory(
     private val todoItemsRepository: TodoItemsRepository,
-    private val connectivityRepository: ConnectivityRepository,
     private val todoItemId: String,
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(TaskViewModel::class.java)) {
-            return TaskViewModel(todoItemsRepository, connectivityRepository, todoItemId) as T
+            return TaskViewModel(todoItemsRepository, todoItemId) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

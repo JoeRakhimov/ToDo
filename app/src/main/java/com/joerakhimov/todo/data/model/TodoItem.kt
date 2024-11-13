@@ -7,10 +7,10 @@ data class TodoItem(
     val text: String, // описания задания
     var importance: Importance, // важность дела
     var deadline: Date?, // дедлайн
-    val isCompleted: Boolean, // флаг выполнения задания
+    val done: Boolean, // флаг выполнения задания
     val createdAt: Date, // дата создания задания
-    val modifiedAt: Date?, // дата изменения задания
-    val changedBy: String = "" // пользователь, изменивший задание
+    val changedAt: Date?, // дата изменения задания
+    val lastUpdatedBy: String = "" // пользователь, изменивший задание
 )
 
 enum class Importance {

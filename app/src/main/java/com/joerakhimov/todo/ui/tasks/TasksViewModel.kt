@@ -20,7 +20,6 @@ import java.util.Date
 
 class TasksViewModel(
     private val todoItemsRepository: TodoItemsRepository,
-    private val connectivityRepository: ConnectivityRepository
 ) : ViewModel() {
 
     private val _state = MutableStateFlow<State<List<TodoItem>>>(State.Loading)
@@ -48,7 +47,7 @@ class TasksViewModel(
     fun fetchTodoItems() {
         _state.value = State.Loading
         fetchTodoItemsJob?.cancel() // to cancel previous job to avoid automatic retry after successful manual retry
-        connectivityRepository.unregister()
+        todoItemsRepository.connectivity.unregister()
         fetchTodoItemsJob = viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) {
             try {
                 val items = todoItemsRepository.getTodoItems()
@@ -68,8 +67,8 @@ class TasksViewModel(
 
     private suspend fun observeConnectivity() {
         viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler){
-            connectivityRepository.register()
-            connectivityRepository.isConnected.collect { isConnected ->
+            todoItemsRepository.connectivity.register()
+            todoItemsRepository.connectivity.isConnected.collect { isConnected ->
                 if(isConnected){
                     if(state.value is State.Error){
                         fetchTodoItems()
@@ -97,7 +96,7 @@ class TasksViewModel(
                 try {
                     todoItemsRepository.updateTodoItem(
                         todoItem.id, todoItem.copy(
-                            modifiedAt = Date()
+                            changedAt = Date()
                         )
                     )
                 } catch (e: Exception) {
@@ -109,18 +108,17 @@ class TasksViewModel(
 
     override fun onCleared() {
         super.onCleared()
-        connectivityRepository.unregister()
+        todoItemsRepository.connectivity.unregister()
     }
 
 }
 
 class TasksViewModelFactory(
-    private val todoItemsRepository: TodoItemsRepository,
-    private val connectivityRepository: ConnectivityRepository
+    private val todoItemsRepository: TodoItemsRepository
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(TasksViewModel::class.java)) {
-            return TasksViewModel(todoItemsRepository, connectivityRepository) as T
+            return TasksViewModel(todoItemsRepository) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

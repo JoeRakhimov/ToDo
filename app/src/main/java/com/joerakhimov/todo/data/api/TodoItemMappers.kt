@@ -11,10 +11,10 @@ fun TodoItemDto.toTodoItem(): TodoItem {
         text = this.text,
         importance = this.importance.let { Importance.valueOf(it.uppercase()) },
         deadline = this.deadline?.let { Date(it) },
-        isCompleted = this.done,
+        done = this.done,
         createdAt = Date(this.createdAt),
-        modifiedAt = this.changedAt?.let { Date(it) },
-        changedBy = this.lastUpdatedBy
+        changedAt = this.changedAt?.let { Date(it) },
+        lastUpdatedBy = this.lastUpdatedBy
     )
 }
 
@@ -25,9 +25,9 @@ fun TodoItem.toTodoItemDto(): TodoItemDto {
         text = this.text,
         importance = this.importance.name.lowercase(),
         deadline = this.deadline?.time,
-        done = this.isCompleted,
+        done = this.done,
         createdAt = this.createdAt.time,
-        changedAt = this.modifiedAt?.time,
-        lastUpdatedBy = this.changedBy
+        changedAt = this.changedAt?.time,
+        lastUpdatedBy = this.lastUpdatedBy
     )
 }

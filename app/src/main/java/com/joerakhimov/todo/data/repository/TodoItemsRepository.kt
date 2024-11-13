@@ -6,25 +6,33 @@ import com.joerakhimov.todo.data.dto.TodoRequestDto
 import com.joerakhimov.todo.data.api.TodoApi
 import com.joerakhimov.todo.data.api.toTodoItem
 import com.joerakhimov.todo.data.api.toTodoItemDto
+import com.joerakhimov.todo.data.db.TodoItemDao
 
 const val KEY_REVISION = "X-Last-Known-Revision"
 const val KEY_TODO_ITEMS_UP_TO_DATE = "todo_items_up_to_date"
 
 class TodoItemsRepository(
     private val todoApi: TodoApi,
+    private val todoItemDao: TodoItemDao,
+    val connectivity: ConnectivityRepository,
     private val preferences: SharedPreferences
 ) {
 
     suspend fun getTodoItems(): List<TodoItem> {
-        return todoApi.getTodoList().also {
-            preferences.edit().putInt(KEY_REVISION, it.revision ?: 0).apply()
-            preferences.edit().putBoolean(KEY_TODO_ITEMS_UP_TO_DATE, true).apply()
-        }.list.map { it.toTodoItem() }
+        return if(connectivity.isNetworkAvailable()){
+            todoApi.getTodoList().also {
+                todoItemDao.insertAll(it.list)
+                preferences.edit().putInt(KEY_REVISION, it.revision ?: 0).apply()
+                preferences.edit().putBoolean(KEY_TODO_ITEMS_UP_TO_DATE, true).apply()
+            }.list.map { it.toTodoItem() }
+        } else {
+            todoItemDao.getAllTodoItems().map { it.toTodoItem() }
+        }
     }
 
     suspend fun getTodoItem(id: String): TodoItem {
         return todoApi.getTodo(id).also {
-            preferences.edit().putInt(KEY_REVISION, it.revision ?: 0).apply()
+            preferences.edit().putInt(KEY_REVISION, it.revision).apply()
         }.element.toTodoItem()
     }
 

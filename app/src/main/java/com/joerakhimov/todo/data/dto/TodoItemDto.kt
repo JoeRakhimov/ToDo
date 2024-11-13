@@ -1,8 +1,15 @@
 package com.joerakhimov.todo.data.dto
 
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 import com.google.gson.annotations.SerializedName
 
+@Entity(tableName = "todo_items")
 data class TodoItemDto(
+
+	@PrimaryKey
+	@field:SerializedName("id")
+	val id: String,
 
 	@field:SerializedName("last_updated_by")
 	val lastUpdatedBy: String = "",
@@ -16,14 +23,11 @@ data class TodoItemDto(
 	@field:SerializedName("created_at")
 	val createdAt: Long,
 
-	@field:SerializedName("files")
-	val files: Any? = null,
+//	@field:SerializedName("files")
+//	val files: Any? = null,
 
 	@field:SerializedName("changed_at")
 	val changedAt: Long? = null,
-
-	@field:SerializedName("id")
-	val id: String,
 
 	@field:SerializedName("text")
 	val text: String,

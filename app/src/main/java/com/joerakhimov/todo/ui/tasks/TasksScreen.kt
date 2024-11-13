@@ -55,6 +55,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.joerakhimov.todo.data.repository.ConnectivityRepository
 import com.joerakhimov.todo.data.api.ApiServiceProvider
+import com.joerakhimov.todo.data.db.TodoDatabase
 import com.joerakhimov.todo.data.repository.TodoItemsRepository
 import com.joerakhimov.todo.navigation.PREFERENCES_NAME
 import com.joerakhimov.todo.navigation.Screen
@@ -67,11 +68,13 @@ fun TasksScreen(
     navController: NavHostController = rememberNavController(),
     repository: TodoItemsRepository = TodoItemsRepository(
         ApiServiceProvider.provideTodoApi(LocalContext.current),
+        TodoDatabase.getDatabase(LocalContext.current).todoItemDao(),
+        ConnectivityRepository(LocalContext.current),
         LocalContext.current.getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE)
     ),
     connectivityRepository: ConnectivityRepository = ConnectivityRepository(LocalContext.current),
     viewModel: TasksViewModel = viewModel<TasksViewModel>(
-        factory = TasksViewModelFactory(repository, connectivityRepository)
+        factory = TasksViewModelFactory(repository)
     ),
     onAddNewTodoButtonClick: () -> Unit = {},
     onTodoClick: (todoId: String) -> Unit = {}
@@ -191,7 +194,7 @@ fun TasksTopAppBar(
                             Text(
                                 stringResource(
                                     R.string.completed,
-                                    todoItems.count { it.isCompleted }),
+                                    todoItems.count { it.done }),
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onTertiary
                             )
@@ -260,7 +263,7 @@ fun TaskList(
             item { Spacer(modifier = Modifier.padding(top = 16.dp)) }
 
             val filteredItems =
-                if (showCompletedTodoList) todoList else todoList.filter { !it.isCompleted }
+                if (showCompletedTodoList) todoList else todoList.filter { !it.done }
             items(filteredItems) { item ->
                 TodoItemView(
                     todoItem = item,

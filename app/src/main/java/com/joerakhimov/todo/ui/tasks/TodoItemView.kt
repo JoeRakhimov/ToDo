@@ -45,9 +45,9 @@ fun TodoItemView(
             .padding(horizontal = 8.dp)
     ) {
         Checkbox(
-            checked = todoItem.isCompleted,
+            checked = todoItem.done,
             onCheckedChange = {
-                onCheckboxCheckedChange(todoItem.copy(isCompleted = !todoItem.isCompleted))
+                onCheckboxCheckedChange(todoItem.copy(done = !todoItem.done))
             },
             colors = checkboxColors,
             modifier = Modifier.padding(4.dp)
@@ -73,8 +73,8 @@ fun TodoItemView(
                 maxLines = 3,
                 overflow = TextOverflow.Ellipsis,
                 style = MaterialTheme.typography.bodyMedium,
-                textDecoration = if (todoItem.isCompleted) TextDecoration.LineThrough else TextDecoration.None,
-                color = if (todoItem.isCompleted) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onBackground
+                textDecoration = if (todoItem.done) TextDecoration.LineThrough else TextDecoration.None,
+                color = if (todoItem.done) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onBackground
             )
             todoItem.deadline?.let { deadline ->
                 Text(
@@ -106,7 +106,7 @@ private fun getCheckboxColors(todoItem: TodoItem) = CheckboxDefaults.colors(
         MaterialTheme.colorScheme.onSurface
     }
 ).copy(
-    uncheckedBoxColor = if (todoItem.isCompleted) {
+    uncheckedBoxColor = if (todoItem.done) {
         MaterialTheme.colorScheme.secondary
     } else if (todoItem.importance == Importance.IMPORTANT) {
         MaterialTheme.colorScheme.error.copy(alpha = 0.16f)

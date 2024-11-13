@@ -65,6 +65,7 @@ import com.joerakhimov.todo.navigation.DEFAULT_TODO_ID
 import com.joerakhimov.todo.R
 import com.joerakhimov.todo.data.repository.ConnectivityRepository
 import com.joerakhimov.todo.data.api.ApiServiceProvider
+import com.joerakhimov.todo.data.db.TodoDatabase
 import com.joerakhimov.todo.data.model.Importance
 import com.joerakhimov.todo.data.model.TodoItem
 import com.joerakhimov.todo.data.repository.TodoItemsRepository
@@ -87,13 +88,13 @@ fun TaskScreen(
     todoId: String = DEFAULT_TODO_ID,
     repository: TodoItemsRepository = TodoItemsRepository(
         ApiServiceProvider.provideTodoApi(LocalContext.current),
+        TodoDatabase.getDatabase(LocalContext.current).todoItemDao(),
+        ConnectivityRepository(LocalContext.current),
         LocalContext.current.getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE)
     ),
-    connectivityRepository: ConnectivityRepository = ConnectivityRepository(LocalContext.current),
     viewModel: TaskViewModel = viewModel<TaskViewModel>(
         factory = TaskViewModelFactory(
             repository,
-            connectivityRepository,
             todoId
         )
     ),
