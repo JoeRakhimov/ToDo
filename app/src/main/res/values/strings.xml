@@ -18,4 +18,8 @@
     <string name="toggle_completed">Отображение завершенных задач</string>
     <string name="close">Закрыть</string>
     <string name="retry">Повторить</string>
+    <string name="network_error">Произошла ошибка сети.</string>
+    <string name="http_error">Произошла ошибка HTTP с кодом статуса: %1$d</string>
+    <string name="timeout_error">Запрос превысил время ожидания. Пожалуйста, попробуйте снова.</string>
+    <string name="something_went_wrong">Что-то пошло не так</string>
 </resources>

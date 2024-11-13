@@ -1,6 +1,7 @@
-package com.joerakhimov.todo.data
+package com.joerakhimov.todo.data.repository
 
 import android.content.SharedPreferences
+import com.joerakhimov.todo.data.model.TodoItem
 import com.joerakhimov.todo.data.dto.TodoRequestDto
 import com.joerakhimov.todo.data.api.TodoApi
 import com.joerakhimov.todo.data.api.toTodoItem
@@ -9,7 +10,10 @@ import com.joerakhimov.todo.data.api.toTodoItemDto
 const val KEY_REVISION = "X-Last-Known-Revision"
 const val KEY_TODO_ITEMS_UP_TO_DATE = "todo_items_up_to_date"
 
-class TodoItemsRepository(private val todoApi: TodoApi, private val preferences: SharedPreferences) {
+class TodoItemsRepository(
+    private val todoApi: TodoApi,
+    private val preferences: SharedPreferences
+) {
 
     suspend fun getTodoItems(): List<TodoItem> {
         return todoApi.getTodoList().also {

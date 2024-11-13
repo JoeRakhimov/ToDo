@@ -63,10 +63,11 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.joerakhimov.todo.navigation.DEFAULT_TODO_ID
 import com.joerakhimov.todo.R
+import com.joerakhimov.todo.data.repository.ConnectivityRepository
 import com.joerakhimov.todo.data.api.ApiServiceProvider
-import com.joerakhimov.todo.data.Importance
-import com.joerakhimov.todo.data.TodoItem
-import com.joerakhimov.todo.data.TodoItemsRepository
+import com.joerakhimov.todo.data.model.Importance
+import com.joerakhimov.todo.data.model.TodoItem
+import com.joerakhimov.todo.data.repository.TodoItemsRepository
 import com.joerakhimov.todo.navigation.PREFERENCES_NAME
 import com.joerakhimov.todo.ui.common.State
 import com.joerakhimov.todo.ui.common.ErrorView
@@ -88,9 +89,11 @@ fun TaskScreen(
         ApiServiceProvider.provideTodoApi(LocalContext.current),
         LocalContext.current.getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE)
     ),
+    connectivityRepository: ConnectivityRepository = ConnectivityRepository(LocalContext.current),
     viewModel: TaskViewModel = viewModel<TaskViewModel>(
         factory = TaskViewModelFactory(
             repository,
+            connectivityRepository,
             todoId
         )
     ),

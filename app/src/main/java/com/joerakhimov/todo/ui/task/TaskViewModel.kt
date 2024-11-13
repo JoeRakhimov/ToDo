@@ -4,14 +4,17 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.joerakhimov.todo.data.Importance
-import com.joerakhimov.todo.data.TodoItem
-import com.joerakhimov.todo.data.TodoItemsRepository
+import com.joerakhimov.todo.data.repository.ConnectivityRepository
+import com.joerakhimov.todo.data.model.Importance
+import com.joerakhimov.todo.data.model.TodoItem
+import com.joerakhimov.todo.data.repository.TodoItemsRepository
 import com.joerakhimov.todo.navigation.DEFAULT_TODO_ID
 import com.joerakhimov.todo.ui.common.State
 import com.joerakhimov.todo.ui.common.getHumanReadableErrorMessage
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -20,16 +23,17 @@ import java.util.UUID
 
 class TaskViewModel(
     private val todoItemsRepository: TodoItemsRepository,
+    private val connectivityRepository: ConnectivityRepository,
     private val todoItemId: String
 ) : ViewModel() {
+
+    val snackbarHostState = SnackbarHostState()
 
     private val coroutineExceptionHandler = CoroutineExceptionHandler { _, exception ->
         viewModelScope.launch(Dispatchers.IO) {
             snackbarHostState.showSnackbar(exception.getHumanReadableErrorMessage())
         }
     }
-
-    val snackbarHostState = SnackbarHostState()
 
     private val _state = MutableStateFlow<State<TodoItem>>(
         State.Success(
@@ -56,18 +60,40 @@ class TaskViewModel(
         }
     }
 
+    private var fetchTodoItemJob: Job? = null
     fun fetchTodoItem() {
         _state.value = State.Loading
-        viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) {
+        fetchTodoItemJob?.cancel() // to cancel previous job to avoid automatic retry after successful manual retry
+        connectivityRepository.unregister()
+        fetchTodoItemJob = viewModelScope.launch(Dispatchers.IO) {
             try {
                 val todoItem = todoItemsRepository.getTodoItem(todoItemId)
                 _state.value = State.Success(todoItem)
             } catch (e: Exception) {
-                _state.value = State.Error(e.getHumanReadableErrorMessage())
+                observeConnectivity()
+                var secondsBeforeRetry = 30
+                repeat(secondsBeforeRetry) {
+                    _state.value = State.Error("${e.getHumanReadableErrorMessage()}. Повторная попытка через $secondsBeforeRetry секунд ...")
+                    delay(1000)
+                    secondsBeforeRetry -= 1
+                }
+                fetchTodoItem()
             }
         }
     }
 
+    private suspend fun observeConnectivity() {
+        viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) {
+            connectivityRepository.register()
+            connectivityRepository.isConnected.collect { isConnected ->
+                if(isConnected){
+                    if(state.value is State.Error){
+                        fetchTodoItem()
+                    }
+                }
+            }
+        }
+    }
 
     fun addTodoItem(todoItem: TodoItem) {
         viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) {
@@ -118,15 +144,21 @@ class TaskViewModel(
         return UUID.randomUUID().toString()
     }
 
+    override fun onCleared() {
+        super.onCleared()
+        connectivityRepository.unregister()
+    }
+
 }
 
 class TaskViewModelFactory(
     private val todoItemsRepository: TodoItemsRepository,
+    private val connectivityRepository: ConnectivityRepository,
     private val todoItemId: String,
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(TaskViewModel::class.java)) {
-            return TaskViewModel(todoItemsRepository, todoItemId) as T
+            return TaskViewModel(todoItemsRepository, connectivityRepository, todoItemId) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

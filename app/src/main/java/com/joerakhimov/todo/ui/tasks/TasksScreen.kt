@@ -48,13 +48,14 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.joerakhimov.todo.R
-import com.joerakhimov.todo.data.TodoItem
+import com.joerakhimov.todo.data.model.TodoItem
 import com.joerakhimov.todo.ui.theme.ToDoTheme
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.joerakhimov.todo.data.repository.ConnectivityRepository
 import com.joerakhimov.todo.data.api.ApiServiceProvider
-import com.joerakhimov.todo.data.TodoItemsRepository
+import com.joerakhimov.todo.data.repository.TodoItemsRepository
 import com.joerakhimov.todo.navigation.PREFERENCES_NAME
 import com.joerakhimov.todo.navigation.Screen
 import com.joerakhimov.todo.ui.common.State
@@ -68,8 +69,9 @@ fun TasksScreen(
         ApiServiceProvider.provideTodoApi(LocalContext.current),
         LocalContext.current.getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE)
     ),
+    connectivityRepository: ConnectivityRepository = ConnectivityRepository(LocalContext.current),
     viewModel: TasksViewModel = viewModel<TasksViewModel>(
-        factory = TasksViewModelFactory(repository)
+        factory = TasksViewModelFactory(repository, connectivityRepository)
     ),
     onAddNewTodoButtonClick: () -> Unit = {},
     onTodoClick: (todoId: String) -> Unit = {}

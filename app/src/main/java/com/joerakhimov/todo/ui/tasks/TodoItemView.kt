@@ -22,9 +22,9 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.joerakhimov.todo.data.Importance
+import com.joerakhimov.todo.data.model.Importance
 import com.joerakhimov.todo.R
-import com.joerakhimov.todo.data.TodoItem
+import com.joerakhimov.todo.data.model.TodoItem
 import com.joerakhimov.todo.ui.theme.ToDoTheme
 import java.text.SimpleDateFormat
 import java.util.Date

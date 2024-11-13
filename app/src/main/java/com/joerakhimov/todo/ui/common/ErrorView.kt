@@ -14,6 +14,7 @@ import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.joerakhimov.todo.R
 
@@ -27,8 +28,12 @@ fun ErrorView(
         contentAlignment = Alignment.Center
     ) {
         Column(horizontalAlignment = CenterHorizontally) {
-            Text(message, color = MaterialTheme.colorScheme.onPrimary)
-            Spacer(modifier = Modifier.padding(8.dp))
+            Text(
+                message,
+                color = MaterialTheme.colorScheme.onPrimary,
+                modifier = Modifier.padding(16.dp),
+                textAlign = TextAlign.Center
+            )
             Button(
                 onClick = { onRetry() }
             ) {

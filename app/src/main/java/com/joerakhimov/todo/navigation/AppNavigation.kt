@@ -7,8 +7,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.joerakhimov.todo.data.repository.ConnectivityRepository
 import com.joerakhimov.todo.data.api.ApiServiceProvider
-import com.joerakhimov.todo.data.TodoItemsRepository
+import com.joerakhimov.todo.data.repository.TodoItemsRepository
 import com.joerakhimov.todo.ui.task.TaskScreen
 import com.joerakhimov.todo.ui.tasks.TasksScreen
 
@@ -30,16 +31,17 @@ fun AppNavigation(context: Context) {
         val preferences = context.getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE)
         TodoItemsRepository(todoApi, preferences)
     }
+    val connectivityRepository = remember { ConnectivityRepository(context) }
     NavHost(
         navController = navController,
         startDestination = Screen.Tasks.route
     ) {
-
         // Route for task list
         composable(route = Screen.Tasks.route) {
             TasksScreen(
                 navController = navController,
                 repository = repository,
+                connectivityRepository = connectivityRepository,
                 onAddNewTodoButtonClick = {
                     navController.navigate(Screen.Task.route)
                 },
@@ -53,6 +55,7 @@ fun AppNavigation(context: Context) {
         composable(route = Screen.Task.route) {
             TaskScreen(
                 repository = repository,
+                connectivityRepository = connectivityRepository,
                 onExit = { navController.popBackStack() }
             )
         }
@@ -66,6 +69,7 @@ fun AppNavigation(context: Context) {
             TaskScreen(
                 todoId = todoId,
                 repository = repository,
+                connectivityRepository = connectivityRepository,
                 onExit = { navController.popBackStack() }
             )
         }
