@@ -1,4 +1,4 @@
-package com.joerakhimov.todo.ui.tasks
+package com.joerakhimov.todo.ui.screens.tasks
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add

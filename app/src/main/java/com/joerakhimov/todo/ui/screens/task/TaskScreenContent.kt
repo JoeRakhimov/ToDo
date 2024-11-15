@@ -1,4 +1,4 @@
-package com.joerakhimov.todo.ui.task
+package com.joerakhimov.todo.ui.screens.task
 
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -55,10 +55,10 @@ fun TaskScreenContent(
                         SaveAction(todo, onSave = {
                             when (screenMode) {
                                 is TaskScreenMode.NewTask -> {
-                                    viewModel.addTodoItem(it)
+                                    viewModel.addTodoItem()
                                 }
                                 is TaskScreenMode.EditTask -> {
-                                    viewModel.updateTodoItem(it)
+                                    viewModel.updateTodoItem()
                                 }
                             }
                         })
@@ -76,7 +76,7 @@ fun TaskScreenContent(
                 onImportanceChange = { viewModel.updateTodoImportance(it) },
                 onDeadlineDateChange = { viewModel.updateTodoItemDeadline(it) },
                 onDeleteButtonClick = {
-                    viewModel.deleteTodoItem(it)
+                    viewModel.deleteTodoItem()
                 },
                 padding = padding
             )

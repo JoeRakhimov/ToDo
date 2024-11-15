@@ -1,6 +1,5 @@
-package com.joerakhimov.todo.ui.task
+package com.joerakhimov.todo.ui.screens.task
 
-import androidx.compose.material3.SnackbarHostState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -31,16 +30,7 @@ class TaskViewModel(
     private val todoItemId: String
 ) : ViewModel() {
 
-    private val _snackbarMessage = MutableStateFlow<SnackbarMessage?>(null)
-    val snackbarMessage = _snackbarMessage.asStateFlow()
-
-    private val coroutineExceptionHandler = CoroutineExceptionHandler { _, exception ->
-        viewModelScope.launch(Dispatchers.IO) {
-            _snackbarMessage.value = SnackbarMessage.TextMessage(exceptionMessageUtil.getHumanReadableErrorMessage(exception))
-        }
-    }
-
-    private val _state = MutableStateFlow<State<TodoItem>>(
+    private val _todoItemState = MutableStateFlow<State<TodoItem>>(
         State.Success(
             TodoItem(
                 id = generateUUID(),
@@ -54,10 +44,19 @@ class TaskViewModel(
             )
         )
     )
-    val state: StateFlow<State<TodoItem>> = _state
+    val todoItemState: StateFlow<State<TodoItem>> = _todoItemState
 
     private val _operationOnTodoCompleted = MutableStateFlow(false)
     val operationOnTodoCompleted: StateFlow<Boolean> = _operationOnTodoCompleted
+
+    private val _snackbarMessage = MutableStateFlow<SnackbarMessage?>(null)
+    val snackbarMessage = _snackbarMessage.asStateFlow()
+
+    private val coroutineExceptionHandler = CoroutineExceptionHandler { _, exception ->
+        viewModelScope.launch(Dispatchers.IO) {
+            _snackbarMessage.value = SnackbarMessage.TextMessage(exceptionMessageUtil.getHumanReadableErrorMessage(exception))
+        }
+    }
 
     init {
         if (todoItemId != DEFAULT_TODO_ID) {
@@ -67,17 +66,17 @@ class TaskViewModel(
 
     private var fetchTodoItemJob: Job? = null
     fun fetchTodoItem() {
-        _state.value = State.Loading
+        _todoItemState.value = State.Loading
         fetchTodoItemJob?.takeIf { it.isActive }?.cancel() // to cancel previous job to avoid automatic retry after successful manual retry
         fetchTodoItemJob = viewModelScope.launch(Dispatchers.IO) {
             try {
                 val todoItem = todoItemsRepository.getTodoItem(todoItemId)
-                _state.value = State.Success(todoItem)
+                _todoItemState.value = State.Success(todoItem)
             } catch (e: Exception) {
                 observeConnectivity()
                 var secondsBeforeRetry = 30
                 repeat(secondsBeforeRetry) {
-                    _state.value =
+                    _todoItemState.value =
                         State.Error("${exceptionMessageUtil.getHumanReadableErrorMessage(e)}.", e, secondsBeforeRetry)
                     delay(1000)
                     secondsBeforeRetry--
@@ -94,7 +93,7 @@ class TaskViewModel(
             connectivityRepository.register()
             connectivityRepository.isConnected.collect { isConnected ->
                 if (isConnected) {
-                    val state = state.value
+                    val state = todoItemState.value
                     if(state is State.Error){
                         if(state.exception is IOException){
                             fetchTodoItem()
@@ -105,61 +104,68 @@ class TaskViewModel(
         }
     }
 
-    fun addTodoItem(todoItem: TodoItem) {
+    fun addTodoItem() {
         viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) {
-            if (todoItem.text.isEmpty()) {
-                _snackbarMessage.value = SnackbarMessage.TaskDescriptionCannotBeEmpty
-                return@launch
-            }
-            todoItemsRepository.addTodoItem(
-                todoItem.copy(
-                    changedAt = Date(),
+            val currentState = todoItemState.value
+            if (currentState is State.Success) {
+                if (currentState.data.text.isEmpty()) {
+                    _snackbarMessage.value = SnackbarMessage.TaskDescriptionCannotBeEmpty
+                    return@launch
+                }
+                todoItemsRepository.addTodoItem(
+                    currentState.data.copy(
+                        changedAt = Date(),
+                    )
                 )
-            )
-            _operationOnTodoCompleted.value = true
+                _operationOnTodoCompleted.value = true
+            }
+
         }
     }
 
     fun updateTodoItemDescription(description: String) {
-        val currentState = state.value
+        val currentState = todoItemState.value
         if (currentState is State.Success) {
             val updatedTodo = currentState.data.copy(text = description)
-            _state.value = State.Success(updatedTodo)
+            _todoItemState.value = State.Success(updatedTodo)
         }
     }
 
     fun updateTodoItemDeadline(deadlineDate: Date?) {
-        val currentState = state.value
+        val currentState = todoItemState.value
         if (currentState is State.Success) {
             val updatedTodo = currentState.data.copy(deadline = deadlineDate)
-            _state.value = State.Success(updatedTodo)
+            _todoItemState.value = State.Success(updatedTodo)
         }
     }
 
     fun updateTodoImportance(importance: Importance) {
-        val currentState = state.value
+        val currentState = todoItemState.value
         if (currentState is State.Success) {
             val updatedTodo = currentState.data.copy(importance = importance)
-            _state.value = State.Success(updatedTodo)
+            _todoItemState.value = State.Success(updatedTodo)
         }
     }
 
-    fun updateTodoItem(todoItem: TodoItem) {
+    fun updateTodoItem() {
         viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) {
-            if (todoItem.text.isEmpty()) {
-                _snackbarMessage.value = SnackbarMessage.TaskDescriptionCannotBeEmpty
-                return@launch
-            }
-            todoItemsRepository.updateTodoItem(
-                todoItemId, todoItem.copy(
-                    changedAt = Date(),
+            val currentState = todoItemState.value
+            if (currentState is State.Success) {
+                if (currentState.data.text.isEmpty()) {
+                    _snackbarMessage.value = SnackbarMessage.TaskDescriptionCannotBeEmpty
+                    return@launch
+                }
+                todoItemsRepository.updateTodoItem(
+                    todoItemId, currentState.data.copy(
+                        changedAt = Date(),
+                    )
                 )
-            )
-            _operationOnTodoCompleted.value = true
+                _operationOnTodoCompleted.value = true
+            }
         }
     }
 
-    fun deleteTodoItem(todoItem: TodoItem) {
+    fun deleteTodoItem() {
         viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) {
             todoItemsRepository.deleteTodoItem(todoItemId)
             _operationOnTodoCompleted.value = true

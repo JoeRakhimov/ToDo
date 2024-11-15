@@ -1,4 +1,4 @@
-package com.joerakhimov.todo.ui.tasks
+package com.joerakhimov.todo.ui.screens.tasks
 
 import android.content.res.Configuration
 import androidx.compose.foundation.Image

@@ -1,4 +1,4 @@
-package com.joerakhimov.todo.ui.task
+package com.joerakhimov.todo.ui.screens.task
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier

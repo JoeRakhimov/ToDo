@@ -1,4 +1,4 @@
-package com.joerakhimov.todo.ui.task
+package com.joerakhimov.todo.ui.screens.task
 
 import android.content.Context
 import android.content.res.Configuration
@@ -46,7 +46,7 @@ fun TaskScreen(
     onExit: () -> Unit = {}
 ) {
 
-    val state = viewModel.state.collectAsState().value
+    val state = viewModel.todoItemState.collectAsState().value
 
     when (state) {
         is State.Loading -> {

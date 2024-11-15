@@ -1,4 +1,4 @@
-package com.joerakhimov.todo.ui.task
+package com.joerakhimov.todo.ui.screens.task
 
 import androidx.compose.foundation.background
 import androidx.compose.material3.DatePicker

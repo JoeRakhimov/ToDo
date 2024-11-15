@@ -1,4 +1,4 @@
-package com.joerakhimov.todo.ui.tasks
+package com.joerakhimov.todo.ui.screens.tasks
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box

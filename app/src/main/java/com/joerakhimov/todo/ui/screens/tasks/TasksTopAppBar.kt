@@ -1,4 +1,4 @@
-package com.joerakhimov.todo.ui.tasks
+package com.joerakhimov.todo.ui.screens.tasks
 
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable

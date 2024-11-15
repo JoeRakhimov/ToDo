@@ -1,4 +1,4 @@
-package com.joerakhimov.todo.ui.tasks
+package com.joerakhimov.todo.ui.screens.tasks
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider

@@ -12,8 +12,8 @@ import com.joerakhimov.todo.data.source.api.ApiServiceProvider
 import com.joerakhimov.todo.data.source.db.TodoDatabase
 import com.joerakhimov.todo.data.repository.TodoItemsRepository
 import com.joerakhimov.todo.data.source.util.ExceptionMessageUtil
-import com.joerakhimov.todo.ui.task.TaskScreen
-import com.joerakhimov.todo.ui.tasks.TasksScreen
+import com.joerakhimov.todo.ui.screens.task.TaskScreen
+import com.joerakhimov.todo.ui.screens.tasks.TasksScreen
 
 const val KEY_TODO_ID = "todoId"
 const val DEFAULT_TODO_ID = ""
