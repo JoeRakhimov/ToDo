@@ -12,11 +12,12 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.joerakhimov.todo.data.repository.ConnectivityRepository
-import com.joerakhimov.todo.data.api.ApiServiceProvider
-import com.joerakhimov.todo.data.db.TodoDatabase
+import com.joerakhimov.todo.data.source.api.ApiServiceProvider
+import com.joerakhimov.todo.data.source.db.TodoDatabase
 import com.joerakhimov.todo.data.repository.TodoItemsRepository
-import com.joerakhimov.todo.navigation.PREFERENCES_NAME
-import com.joerakhimov.todo.navigation.Screen
+import com.joerakhimov.todo.data.source.util.ExceptionMessageUtil
+import com.joerakhimov.todo.ui.navigation.PREFERENCES_NAME
+import com.joerakhimov.todo.ui.navigation.Screen
 import com.joerakhimov.todo.ui.common.State
 import com.joerakhimov.todo.ui.common.ErrorView
 import com.joerakhimov.todo.ui.common.ProgressView
@@ -30,14 +31,14 @@ fun TasksScreen(
         ConnectivityRepository(LocalContext.current),
         LocalContext.current.getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE)
     ),
+    connectivity: ConnectivityRepository = ConnectivityRepository(LocalContext.current),
+    exceptionMessageUtil: ExceptionMessageUtil = ExceptionMessageUtil(LocalContext.current),
     viewModel: TasksViewModel = viewModel<TasksViewModel>(
-        factory = TasksViewModelFactory(repository)
+        factory = TasksViewModelFactory(repository, connectivity, exceptionMessageUtil)
     ),
     onAddNewTodoButtonClick: () -> Unit = {},
     onTodoClick: (todoId: String) -> Unit = {}
 ) {
-
-    val snackbarHostState = viewModel.snackbarHostState
 
     LaunchedEffect(navController.currentBackStackEntry) {
         val currentRoute = navController.currentBackStackEntry?.destination?.route
@@ -57,14 +58,13 @@ fun TasksScreen(
             TasksScreenContent(
                 state.data,
                 onAddNewTodoButtonClick,
-                snackbarHostState,
                 onTodoClick,
                 viewModel
             )
         }
 
         is State.Error -> {
-            ErrorView(state.message) {
+            ErrorView(state.message, state.remainingSecondsBeforeRetry) {
                 viewModel.fetchTodoItems()
             }
         }

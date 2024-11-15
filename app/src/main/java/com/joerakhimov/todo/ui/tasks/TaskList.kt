@@ -17,7 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.joerakhimov.todo.R
-import com.joerakhimov.todo.data.model.TodoItem
+import com.joerakhimov.todo.ui.model.TodoItem
 
 @Composable
 fun TaskList(

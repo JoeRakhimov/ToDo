@@ -1,4 +1,4 @@
-package com.joerakhimov.todo.data.workmanager
+package com.joerakhimov.todo.ui.workmanager
 
 import android.content.Context
 import androidx.work.Constraints
@@ -8,11 +8,11 @@ import androidx.work.NetworkType
 import androidx.work.PeriodicWorkRequest
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
-import com.joerakhimov.todo.data.api.ApiServiceProvider
-import com.joerakhimov.todo.data.db.TodoDatabase
+import com.joerakhimov.todo.data.source.api.ApiServiceProvider
+import com.joerakhimov.todo.data.source.db.TodoDatabase
 import com.joerakhimov.todo.data.repository.ConnectivityRepository
 import com.joerakhimov.todo.data.repository.TodoItemsRepository
-import com.joerakhimov.todo.navigation.PREFERENCES_NAME
+import com.joerakhimov.todo.ui.navigation.PREFERENCES_NAME
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.util.concurrent.TimeUnit

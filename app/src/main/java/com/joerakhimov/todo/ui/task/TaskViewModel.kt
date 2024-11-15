@@ -4,18 +4,21 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.joerakhimov.todo.data.model.Importance
-import com.joerakhimov.todo.data.model.TodoItem
+import com.joerakhimov.todo.data.repository.ConnectivityRepository
+import com.joerakhimov.todo.ui.model.Importance
+import com.joerakhimov.todo.ui.model.TodoItem
 import com.joerakhimov.todo.data.repository.TodoItemsRepository
-import com.joerakhimov.todo.navigation.DEFAULT_TODO_ID
+import com.joerakhimov.todo.data.source.util.ExceptionMessageUtil
+import com.joerakhimov.todo.ui.common.SnackbarMessage
+import com.joerakhimov.todo.ui.navigation.DEFAULT_TODO_ID
 import com.joerakhimov.todo.ui.common.State
-import com.joerakhimov.todo.ui.common.getHumanReadableErrorMessage
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.io.IOException
 import java.util.Date
@@ -23,14 +26,17 @@ import java.util.UUID
 
 class TaskViewModel(
     private val todoItemsRepository: TodoItemsRepository,
+    private val connectivityRepository: ConnectivityRepository,
+    private val exceptionMessageUtil: ExceptionMessageUtil,
     private val todoItemId: String
 ) : ViewModel() {
 
-    val snackbarHostState = SnackbarHostState()
+    private val _snackbarMessage = MutableStateFlow<SnackbarMessage?>(null)
+    val snackbarMessage = _snackbarMessage.asStateFlow()
 
     private val coroutineExceptionHandler = CoroutineExceptionHandler { _, exception ->
         viewModelScope.launch(Dispatchers.IO) {
-            snackbarHostState.showSnackbar(exception.getHumanReadableErrorMessage())
+            _snackbarMessage.value = SnackbarMessage.TextMessage(exceptionMessageUtil.getHumanReadableErrorMessage(exception))
         }
     }
 
@@ -72,7 +78,7 @@ class TaskViewModel(
                 var secondsBeforeRetry = 30
                 repeat(secondsBeforeRetry) {
                     _state.value =
-                        State.Error("${e.getHumanReadableErrorMessage()}. Повторная попытка через $secondsBeforeRetry секунд ...", e)
+                        State.Error("${exceptionMessageUtil.getHumanReadableErrorMessage(e)}.", e, secondsBeforeRetry)
                     delay(1000)
                     secondsBeforeRetry--
                 }
@@ -85,8 +91,8 @@ class TaskViewModel(
     private suspend fun observeConnectivity() {
         observeConnectivityJob?.takeIf { it.isActive }?.cancel()
         observeConnectivityJob = viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) {
-            todoItemsRepository.connectivity.register()
-            todoItemsRepository.connectivity.isConnected.collect { isConnected ->
+            connectivityRepository.register()
+            connectivityRepository.isConnected.collect { isConnected ->
                 if (isConnected) {
                     val state = state.value
                     if(state is State.Error){
@@ -102,7 +108,7 @@ class TaskViewModel(
     fun addTodoItem(todoItem: TodoItem) {
         viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) {
             if (todoItem.text.isEmpty()) {
-                snackbarHostState.showSnackbar("Описание не может быть пустым")
+                _snackbarMessage.value = SnackbarMessage.TaskDescriptionCannotBeEmpty
                 return@launch
             }
             todoItemsRepository.addTodoItem(
@@ -122,10 +128,26 @@ class TaskViewModel(
         }
     }
 
+    fun updateTodoItemDeadline(deadlineDate: Date?) {
+        val currentState = state.value
+        if (currentState is State.Success) {
+            val updatedTodo = currentState.data.copy(deadline = deadlineDate)
+            _state.value = State.Success(updatedTodo)
+        }
+    }
+
+    fun updateTodoImportance(importance: Importance) {
+        val currentState = state.value
+        if (currentState is State.Success) {
+            val updatedTodo = currentState.data.copy(importance = importance)
+            _state.value = State.Success(updatedTodo)
+        }
+    }
+
     fun updateTodoItem(todoItem: TodoItem) {
         viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) {
             if (todoItem.text.isEmpty()) {
-                snackbarHostState.showSnackbar("Описание не может быть пустым")
+                _snackbarMessage.value = SnackbarMessage.TaskDescriptionCannotBeEmpty
                 return@launch
             }
             todoItemsRepository.updateTodoItem(
@@ -148,21 +170,27 @@ class TaskViewModel(
         return UUID.randomUUID().toString()
     }
 
+    fun clearSnackbarMessage(){
+        _snackbarMessage.value = null
+    }
+
     override fun onCleared() {
         super.onCleared()
         observeConnectivityJob?.takeIf { it.isActive }?.cancel()
-        todoItemsRepository.connectivity.unregister()
+        connectivityRepository.unregister()
     }
 
 }
 
 class TaskViewModelFactory(
     private val todoItemsRepository: TodoItemsRepository,
+    private val connectivityRepository: ConnectivityRepository,
+    private val exceptionMessageUtil: ExceptionMessageUtil,
     private val todoItemId: String,
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(TaskViewModel::class.java)) {
-            return TaskViewModel(todoItemsRepository, todoItemId) as T
+            return TaskViewModel(todoItemsRepository, connectivityRepository, exceptionMessageUtil, todoItemId) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

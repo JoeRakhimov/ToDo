@@ -1,4 +1,4 @@
-package com.joerakhimov.todo.data.db
+package com.joerakhimov.todo.data.source.db
 
 import androidx.room.Dao
 import androidx.room.Insert

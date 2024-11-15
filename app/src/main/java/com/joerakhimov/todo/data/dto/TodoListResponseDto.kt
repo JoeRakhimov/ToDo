@@ -12,4 +12,5 @@ data class TodoListResponseDto(
 
 	@field:SerializedName("status")
 	val status: String? = null
+
 )

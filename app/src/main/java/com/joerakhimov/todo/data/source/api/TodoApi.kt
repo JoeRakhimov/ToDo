@@ -1,4 +1,4 @@
-package com.joerakhimov.todo.data.api
+package com.joerakhimov.todo.data.source.api
 
 import com.joerakhimov.todo.data.dto.TodoRequestDto
 import com.joerakhimov.todo.data.dto.TodoResponseDto

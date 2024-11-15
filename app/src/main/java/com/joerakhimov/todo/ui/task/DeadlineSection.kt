@@ -13,7 +13,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.joerakhimov.todo.R
-import com.joerakhimov.todo.data.model.TodoItem
+import com.joerakhimov.todo.ui.model.TodoItem
 import java.util.Date
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -33,7 +33,8 @@ import java.util.Locale
 
 @Composable
 fun DeadlineSection(
-    todo: TodoItem
+    todo: TodoItem,
+    onDeadlineDateChange: (Date?) -> Unit
 ) {
 
     val deadlineEnabled = remember { mutableStateOf(todo.deadline != null) }
@@ -69,7 +70,7 @@ fun DeadlineSection(
                     if (deadlineEnabled.value) {
                         showDatePickerDialog.value = true
                     } else {
-                        todo.deadline = null
+                        onDeadlineDateChange(null)
                     }
                 },
                 colors = SwitchDefaults.colors(
@@ -83,7 +84,7 @@ fun DeadlineSection(
         }
 
         if (showDatePickerDialog.value) {
-            DeadlineDatePickerDialog(todo, deadlineEnabled, showDatePickerDialog)
+            DeadlineDatePickerDialog(todo, deadlineEnabled, showDatePickerDialog, onDeadlineDateChange)
         }
     }
 }
@@ -93,7 +94,8 @@ fun DeadlineSection(
 private fun DeadlineDatePickerDialog(
     todo: TodoItem,
     deadlineEnabled: MutableState<Boolean>,
-    showDatePickerDialog: MutableState<Boolean>
+    showDatePickerDialog: MutableState<Boolean>,
+    onDeadlineDateChange: (Date?) -> Unit
 ) {
 
     val initialSelectedDateMillis = todo.deadline?.time
@@ -105,7 +107,7 @@ private fun DeadlineDatePickerDialog(
         confirmButton = {
             TextButton(onClick = {
                 datePickerState.selectedDateMillis?.let { selectedDateMillis ->
-                    todo.deadline = Date(selectedDateMillis)
+                    onDeadlineDateChange(Date(selectedDateMillis))
                     deadlineEnabled.value = true
                 }
                 showDatePickerDialog.value = false

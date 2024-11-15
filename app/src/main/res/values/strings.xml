@@ -22,4 +22,6 @@
     <string name="http_error">Произошла ошибка HTTP с кодом статуса: %1$d</string>
     <string name="timeout_error">Запрос превысил время ожидания. Пожалуйста, попробуйте снова.</string>
     <string name="something_went_wrong">Что-то пошло не так</string>
+    <string name="retry_in_given_seconds">Повторная попытка через %1$s секунд</string>
+    <string name="showing_cached_data">Отображаются ранее сохраненные данные</string>
 </resources>

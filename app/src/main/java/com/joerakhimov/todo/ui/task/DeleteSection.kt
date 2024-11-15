@@ -2,7 +2,7 @@ package com.joerakhimov.todo.ui.task
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.joerakhimov.todo.data.model.TodoItem
+import com.joerakhimov.todo.ui.model.TodoItem
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth

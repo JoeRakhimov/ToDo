@@ -1,4 +1,4 @@
-package com.joerakhimov.todo.data.db
+package com.joerakhimov.todo.data.source.db
 
 import android.content.Context
 import androidx.room.Database
@@ -11,8 +11,6 @@ const val TODO_DATABASE_NAME = "todo_database"
 @Database(entities = [TodoItemDto::class], version = 1, exportSchema = false)
 abstract class TodoDatabase : RoomDatabase() {
 
-    abstract fun todoItemDao(): TodoItemDao
-
     companion object {
         fun getDatabase(context: Context): TodoDatabase {
             return Room.databaseBuilder(
@@ -22,5 +20,7 @@ abstract class TodoDatabase : RoomDatabase() {
             ).build()
         }
     }
+
+    abstract fun todoItemDao(): TodoItemDao
 
 }

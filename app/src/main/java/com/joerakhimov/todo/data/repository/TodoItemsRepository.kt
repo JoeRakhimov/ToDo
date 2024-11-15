@@ -1,13 +1,13 @@
 package com.joerakhimov.todo.data.repository
 
 import android.content.SharedPreferences
-import com.joerakhimov.todo.data.model.TodoItem
+import com.joerakhimov.todo.ui.model.TodoItem
 import com.joerakhimov.todo.data.dto.TodoRequestDto
-import com.joerakhimov.todo.data.api.TodoApi
-import com.joerakhimov.todo.data.api.toTodoItem
-import com.joerakhimov.todo.data.api.toTodoItemDto
-import com.joerakhimov.todo.data.db.TodoItemDao
-import com.joerakhimov.todo.data.workmanager.UpdateTodoItemsWorker
+import com.joerakhimov.todo.data.source.api.TodoApi
+import com.joerakhimov.todo.data.source.api.toTodoItem
+import com.joerakhimov.todo.data.source.api.toTodoItemDto
+import com.joerakhimov.todo.data.source.db.TodoItemDao
+import com.joerakhimov.todo.ui.workmanager.UpdateTodoItemsWorker
 import java.io.IOException
 
 const val KEY_REVISION = "X-Last-Known-Revision"
@@ -16,7 +16,7 @@ const val KEY_TODO_ITEMS_UP_TO_DATE = "todo_items_up_to_date"
 class TodoItemsRepository(
     private val todoApi: TodoApi,
     private val todoItemDao: TodoItemDao,
-    val connectivity: ConnectivityRepository,
+    private val connectivity: ConnectivityRepository,
     private val preferences: SharedPreferences
 ) {
 

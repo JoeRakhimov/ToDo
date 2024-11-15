@@ -20,12 +20,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.joerakhimov.todo.R
-import com.joerakhimov.todo.data.model.Importance
-import com.joerakhimov.todo.data.model.TodoItem
+import com.joerakhimov.todo.ui.model.Importance
+import com.joerakhimov.todo.ui.model.TodoItem
 
 @Composable
 fun ImportanceSection(
-    todo: TodoItem
+    todo: TodoItem,
+    onImportanceChange: (Importance) -> Unit
 ) {
 
     val importanceMenuExpanded = remember { mutableStateOf(false) }
@@ -59,7 +60,7 @@ fun ImportanceSection(
             expanded = importanceMenuExpanded.value,
             onDismissRequest = { importanceMenuExpanded.value = false },
             onImportanceSelected = {
-                todo.importance = it
+                onImportanceChange(it)
                 importanceMenuExpanded.value = false
             }
         )

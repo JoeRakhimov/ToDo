@@ -21,7 +21,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.joerakhimov.todo.R
-import com.joerakhimov.todo.data.model.TodoItem
+import com.joerakhimov.todo.ui.model.TodoItem
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

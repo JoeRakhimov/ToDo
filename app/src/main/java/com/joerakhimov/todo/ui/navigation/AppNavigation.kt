@@ -1,4 +1,4 @@
-package com.joerakhimov.todo.navigation
+package com.joerakhimov.todo.ui.navigation
 
 import android.content.Context
 import androidx.compose.runtime.Composable
@@ -8,9 +8,10 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.joerakhimov.todo.data.repository.ConnectivityRepository
-import com.joerakhimov.todo.data.api.ApiServiceProvider
-import com.joerakhimov.todo.data.db.TodoDatabase
+import com.joerakhimov.todo.data.source.api.ApiServiceProvider
+import com.joerakhimov.todo.data.source.db.TodoDatabase
 import com.joerakhimov.todo.data.repository.TodoItemsRepository
+import com.joerakhimov.todo.data.source.util.ExceptionMessageUtil
 import com.joerakhimov.todo.ui.task.TaskScreen
 import com.joerakhimov.todo.ui.tasks.TasksScreen
 
@@ -34,6 +35,7 @@ fun AppNavigation(context: Context) {
         val preferences = context.getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE)
         TodoItemsRepository(todoApi, dao, connectivityRepository, preferences)
     }
+    val exceptionMessageUtil = remember { ExceptionMessageUtil(context) }
     NavHost(
         navController = navController,
         startDestination = Screen.Tasks.route
@@ -43,6 +45,8 @@ fun AppNavigation(context: Context) {
             TasksScreen(
                 navController = navController,
                 repository = repository,
+                connectivity = connectivityRepository,
+                exceptionMessageUtil = exceptionMessageUtil,
                 onAddNewTodoButtonClick = {
                     navController.navigate(Screen.Task.route)
                 },
@@ -56,6 +60,8 @@ fun AppNavigation(context: Context) {
         composable(route = Screen.Task.route) {
             TaskScreen(
                 repository = repository,
+                connectivity = connectivityRepository,
+                exceptionMessageUtil = exceptionMessageUtil,
                 onExit = { navController.popBackStack() }
             )
         }
@@ -69,6 +75,7 @@ fun AppNavigation(context: Context) {
             TaskScreen(
                 todoId = todoId,
                 repository = repository,
+                connectivity = connectivityRepository,
                 onExit = { navController.popBackStack() }
             )
         }

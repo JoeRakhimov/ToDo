@@ -9,7 +9,9 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.joerakhimov.todo.data.model.TodoItem
+import com.joerakhimov.todo.ui.model.Importance
+import com.joerakhimov.todo.ui.model.TodoItem
+import java.util.Date
 
 
 @Composable
@@ -17,6 +19,8 @@ fun TaskDetailsContent(
     todo: TodoItem,
     screenMode: TaskScreenMode,
     onDescriptionChange: (String) -> Unit,
+    onImportanceChange: (Importance) -> Unit,
+    onDeadlineDateChange: (Date?) -> Unit,
     onDeleteButtonClick: (TodoItem) -> Unit,
     padding: PaddingValues
 ) {
@@ -31,11 +35,14 @@ fun TaskDetailsContent(
     ) {
         TaskDescriptionField(todo, onValueChange = onDescriptionChange)
 
-        ImportanceSection(todo = todo)
+        ImportanceSection(todo = todo, onImportanceChange)
 
         SectionDivider()
 
-        DeadlineSection(todo = todo)
+        DeadlineSection(
+            todo = todo,
+            onDeadlineDateChange = onDeadlineDateChange
+        )
 
         SectionDivider()
 

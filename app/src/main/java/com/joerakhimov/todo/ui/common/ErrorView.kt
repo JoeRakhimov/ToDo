@@ -21,6 +21,7 @@ import com.joerakhimov.todo.R
 @Composable
 fun ErrorView(
     message: String,
+    secondsBeforeRetry: Int? = null,
     onRetry: () -> Unit
 ) {
     Box(
@@ -29,7 +30,14 @@ fun ErrorView(
     ) {
         Column(horizontalAlignment = CenterHorizontally) {
             Text(
-                message,
+                "$message ${
+                    secondsBeforeRetry?.let {
+                        stringResource(
+                            R.string.retry_in_given_seconds,
+                            it
+                        )
+                    } ?: ""
+                }",
                 color = MaterialTheme.colorScheme.onPrimary,
                 modifier = Modifier.padding(16.dp),
                 textAlign = TextAlign.Center

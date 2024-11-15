@@ -1,7 +1,7 @@
-package com.joerakhimov.todo.data.api
+package com.joerakhimov.todo.data.source.api
 
-import com.joerakhimov.todo.data.model.Importance
-import com.joerakhimov.todo.data.model.TodoItem
+import com.joerakhimov.todo.ui.model.Importance
+import com.joerakhimov.todo.ui.model.TodoItem
 import com.joerakhimov.todo.data.dto.TodoItemDto
 import java.util.Date
 
