@@ -11,8 +11,8 @@ import com.joerakhimov.todo.ui.workmanager.UpdateTodoItemsWorker
 import java.io.IOException
 import javax.inject.Inject
 
-const val KEY_REVISION = "X-Last-Known-Revision"
-const val KEY_TODO_ITEMS_UP_TO_DATE = "todo_items_up_to_date"
+private const val KEY_REVISION = "X-Last-Known-Revision"
+private const val KEY_TODO_ITEMS_UP_TO_DATE = "todo_items_up_to_date"
 
 class TodoItemsRepository @Inject constructor(
     private val todoApi: TodoApi,

@@ -15,7 +15,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.util.concurrent.TimeUnit
 
-const val UPDATE_TODO_ITEMS_WORK_NAME = "UPDATE_TODO_ITEMS_WORK_NAME"
+private const val UPDATE_TODO_ITEMS_WORK_NAME = "UPDATE_TODO_ITEMS_WORK_NAME"
 
 class UpdateTodoItemsWorker @AssistedInject constructor(
     @Assisted private val appContext: Context,
