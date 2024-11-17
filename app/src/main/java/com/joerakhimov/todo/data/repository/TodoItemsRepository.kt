@@ -3,6 +3,7 @@ package com.joerakhimov.todo.data.repository
 import android.content.SharedPreferences
 import com.joerakhimov.todo.ui.model.TodoItem
 import com.joerakhimov.todo.data.dto.TodoRequestDto
+import com.joerakhimov.todo.data.source.api.Revision
 import com.joerakhimov.todo.data.source.api.TodoApi
 import com.joerakhimov.todo.data.source.api.toTodoItem
 import com.joerakhimov.todo.data.source.api.toTodoItemDto
@@ -11,7 +12,6 @@ import com.joerakhimov.todo.ui.workmanager.UpdateTodoItemsWorker
 import java.io.IOException
 import javax.inject.Inject
 
-private const val KEY_REVISION = "X-Last-Known-Revision"
 private const val KEY_TODO_ITEMS_UP_TO_DATE = "todo_items_up_to_date"
 
 class TodoItemsRepository @Inject constructor(
@@ -26,7 +26,7 @@ class TodoItemsRepository @Inject constructor(
             val result = todoApi.getTodoList().also {
                 todoItemDao.deleteAll()
                 todoItemDao.insertAll(it.list)
-                preferences.edit().putInt(KEY_REVISION, it.revision ?: 0).apply()
+                Revision.value = it.revision ?: 0
                 preferences.edit().putBoolean(KEY_TODO_ITEMS_UP_TO_DATE, true).apply()
                 UpdateTodoItemsWorker.schedule()
             }.list.map { it.toTodoItem() }
@@ -43,32 +43,29 @@ class TodoItemsRepository @Inject constructor(
 
     suspend fun getTodoItem(id: String): TodoItem {
         return todoApi.getTodo(id).also {
-            preferences.edit().putInt(KEY_REVISION, it.revision).apply()
+            Revision.value = it.revision
         }.element.toTodoItem()
     }
 
     suspend fun addTodoItem(todoItem: TodoItem): TodoItem {
-        val revision = preferences.getInt(KEY_REVISION, 0)
         val request = TodoRequestDto(todoItem.toTodoItemDto())
-        return todoApi.addTodo(revision, request).also {
-            preferences.edit().putInt(KEY_REVISION, it.revision ?: 0).apply()
+        return todoApi.addTodo(Revision.value, request).also {
+            Revision.value = it.revision
             preferences.edit().putBoolean(KEY_TODO_ITEMS_UP_TO_DATE, false).apply()
         }.element.toTodoItem()
     }
 
     suspend fun updateTodoItem(id: String, todoItem: TodoItem): TodoItem {
-        val revision = preferences.getInt(KEY_REVISION, 0)
         val request = TodoRequestDto(todoItem.toTodoItemDto())
-        return todoApi.updateTodo(id, revision, request).also {
-            preferences.edit().putInt(KEY_REVISION, it.revision ?: 0).apply()
+        return todoApi.updateTodo(id, Revision.value, request).also {
+            Revision.value = it.revision
             preferences.edit().putBoolean(KEY_TODO_ITEMS_UP_TO_DATE, false).apply()
         }.element.toTodoItem()
     }
 
     suspend fun deleteTodoItem(id: String): TodoItem {
-        val revision = preferences.getInt(KEY_REVISION, 0)
-        return todoApi.deleteTodo(id, revision).also {
-            preferences.edit().putInt(KEY_REVISION, it.revision).apply()
+        return todoApi.deleteTodo(id, Revision.value).also {
+            Revision.value = it.revision
             preferences.edit().putBoolean(KEY_TODO_ITEMS_UP_TO_DATE, false).apply()
         }.element.toTodoItem()
     }
