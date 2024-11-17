@@ -1,4 +1,4 @@
-package com.joerakhimov.todo.tasks
+package com.joerakhimov.todo.ui.screens.tasks
 
 import android.content.res.Configuration
 import androidx.compose.foundation.Image
@@ -22,9 +22,9 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.joerakhimov.todo.data.Importance
+import com.joerakhimov.todo.ui.model.Importance
 import com.joerakhimov.todo.R
-import com.joerakhimov.todo.data.TodoItem
+import com.joerakhimov.todo.ui.model.TodoItem
 import com.joerakhimov.todo.ui.theme.ToDoTheme
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -33,7 +33,8 @@ import java.util.Locale
 @Composable
 fun TodoItemView(
     todoItem: TodoItem,
-    onClick: (taskId: String) -> Unit = {}
+    onClick: (todoId: String) -> Unit = {},
+    onCheckboxCheckedChange: (TodoItem) -> Unit = {}
 ) {
     val checkboxColors = getCheckboxColors(todoItem)
     val importanceIcon = getImportanceIcon(todoItem.importance)
@@ -44,8 +45,10 @@ fun TodoItemView(
             .padding(horizontal = 8.dp)
     ) {
         Checkbox(
-            checked = todoItem.isCompleted,
-            onCheckedChange = {},
+            checked = todoItem.done,
+            onCheckedChange = {
+                onCheckboxCheckedChange(todoItem.copy(done = !todoItem.done))
+            },
             colors = checkboxColors,
             modifier = Modifier.padding(4.dp)
         )
@@ -70,8 +73,8 @@ fun TodoItemView(
                 maxLines = 3,
                 overflow = TextOverflow.Ellipsis,
                 style = MaterialTheme.typography.bodyMedium,
-                textDecoration = if (todoItem.isCompleted) TextDecoration.LineThrough else TextDecoration.None,
-                color = if (todoItem.isCompleted) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onBackground
+                textDecoration = if (todoItem.done) TextDecoration.LineThrough else TextDecoration.None,
+                color = if (todoItem.done) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onBackground
             )
             todoItem.deadline?.let { deadline ->
                 Text(
@@ -97,15 +100,15 @@ fun TodoItemView(
 private fun getCheckboxColors(todoItem: TodoItem) = CheckboxDefaults.colors(
     checkedColor = MaterialTheme.colorScheme.secondary,
     checkmarkColor = Color.White,
-    uncheckedColor = if (todoItem.importance == Importance.URGENT) {
+    uncheckedColor = if (todoItem.importance == Importance.IMPORTANT) {
         MaterialTheme.colorScheme.error
     } else {
         MaterialTheme.colorScheme.onSurface
     }
 ).copy(
-    uncheckedBoxColor = if (todoItem.isCompleted) {
+    uncheckedBoxColor = if (todoItem.done) {
         MaterialTheme.colorScheme.secondary
-    } else if (todoItem.importance == Importance.URGENT) {
+    } else if (todoItem.importance == Importance.IMPORTANT) {
         MaterialTheme.colorScheme.error.copy(alpha = 0.16f)
     } else {
         Color.Transparent
@@ -116,8 +119,8 @@ private fun getCheckboxColors(todoItem: TodoItem) = CheckboxDefaults.colors(
 private fun getImportanceIcon(importance: Importance): Int? {
     return when (importance) {
         Importance.LOW -> R.drawable.low
-        Importance.NORMAL -> null
-        Importance.URGENT -> R.drawable.urgent
+        Importance.BASIC -> null
+        Importance.IMPORTANT -> R.drawable.urgent
     }
 }
 
@@ -132,7 +135,7 @@ fun PreviewTodoItemView1() {
     val sampleTodoItem = TodoItem(
         "todo_1",
         "Buy grocery",
-        Importance.NORMAL,
+        Importance.BASIC,
         null,
         false,
         Date(),
@@ -149,7 +152,7 @@ fun PreviewTodoItemView1Dark() {
     val sampleTodoItem = TodoItem(
         "todo_1",
         "Buy grocery",
-        Importance.NORMAL,
+        Importance.BASIC,
         null,
         false,
         Date(),
@@ -166,7 +169,7 @@ fun PreviewTodoItemView2() {
     val sampleTodoItem2 = TodoItem(
         "todo_2",
         "Купить что-то, где-то, зачем-то, но зачем не очень понятно, но точно чтобы показать как обрезается текст когда текст слишком длинный",
-        Importance.NORMAL,
+        Importance.BASIC,
         null,
         false,
         Date(),
@@ -183,7 +186,7 @@ fun PreviewTodoItemView2Dark() {
     val sampleTodoItem2 = TodoItem(
         "todo_2",
         "Купить что-то, где-то, зачем-то, но зачем не очень понятно, но точно чтобы показать как обрезается текст когда текст слишком длинный",
-        Importance.NORMAL,
+        Importance.BASIC,
         null,
         false,
         Date(),
@@ -234,7 +237,7 @@ fun PreviewTodoItemView4() {
     val sampleTodoItem2 = TodoItem(
         "todo_4",
         "Купить что-то, где-то, зачем-то, но зачем не очень понятно, но точно чтобы показать как обрезается текст когда текст слишком длинный",
-        Importance.URGENT,
+        Importance.IMPORTANT,
         null,
         false,
         Date(),
@@ -251,7 +254,7 @@ fun PreviewTodoItemView4Dark() {
     val sampleTodoItem2 = TodoItem(
         "todo_4",
         "Купить что-то, где-то, зачем-то, но зачем не очень понятно, но точно чтобы показать как обрезается текст когда текст слишком длинный",
-        Importance.URGENT,
+        Importance.IMPORTANT,
         null,
         false,
         Date(),
@@ -268,7 +271,7 @@ fun PreviewTodoItemView5() {
     val sampleTodoItem2 = TodoItem(
         "todo_5",
         "Купить что-то",
-        Importance.NORMAL,
+        Importance.BASIC,
         null,
         true,
         Date(),
@@ -285,7 +288,7 @@ fun PreviewTodoItemView5Dark() {
     val sampleTodoItem2 = TodoItem(
         "todo_5",
         "Купить что-то",
-        Importance.NORMAL,
+        Importance.BASIC,
         null,
         true,
         Date(),
@@ -302,7 +305,7 @@ fun PreviewTodoItemView6() {
     val sampleTodoItem2 = TodoItem(
         "todo_6",
         "Купить что-то",
-        Importance.NORMAL,
+        Importance.BASIC,
         Date(),
         false,
         Date(),
@@ -319,7 +322,7 @@ fun PreviewTodoItemView6Dark() {
     val sampleTodoItem2 = TodoItem(
         "todo_6",
         "Купить что-то",
-        Importance.NORMAL,
+        Importance.BASIC,
         Date(),
         false,
         Date(),
