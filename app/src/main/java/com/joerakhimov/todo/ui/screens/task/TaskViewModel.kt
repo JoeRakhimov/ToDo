@@ -36,20 +36,7 @@ class TaskViewModel @Inject constructor(
 
     private val todoItemId: String = savedStateHandle[KEY_TODO_ID] ?: DEFAULT_TODO_ID
 
-    private val _todoItemState = MutableStateFlow<State<TodoItem>>(
-        State.Success(
-            TodoItem(
-                id = generateUUID(),
-                text = "",
-                importance = Importance.BASIC,
-                deadline = null,
-                done = false,
-                createdAt = Date(),
-                changedAt = null,
-                lastUpdatedBy = "device_123"
-            )
-        )
-    )
+    private val _todoItemState = MutableStateFlow<State<TodoItem>>(State.Loading)
     val todoItemState: StateFlow<State<TodoItem>> = _todoItemState
 
     private val _operationOnTodoCompleted = MutableStateFlow(false)
@@ -65,7 +52,20 @@ class TaskViewModel @Inject constructor(
     }
 
     init {
-        if (todoItemId != DEFAULT_TODO_ID) {
+        if(todoItemId == DEFAULT_TODO_ID){
+            _todoItemState.value = State.Success(
+                TodoItem(
+                    id = generateUUID(),
+                    text = "",
+                    importance = Importance.BASIC,
+                    deadline = null,
+                    done = false,
+                    createdAt = Date(),
+                    changedAt = null,
+                    lastUpdatedBy = "device_123"
+                )
+            )
+        } else {
             fetchTodoItem()
         }
     }
@@ -97,7 +97,7 @@ class TaskViewModel @Inject constructor(
         observeConnectivityJob?.takeIf { it.isActive }?.cancel()
         observeConnectivityJob = viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) {
             connectivityRepository.register()
-            connectivityRepository.isConnected.collect { isConnected ->
+            connectivityRepository.isConnectedFlow.collect { isConnected ->
                 if (isConnected) {
                     val state = todoItemState.value
                     if(state is State.Error){

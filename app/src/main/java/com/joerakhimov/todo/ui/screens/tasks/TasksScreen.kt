@@ -16,7 +16,7 @@ import com.joerakhimov.todo.ui.common.ProgressView
 
 @Composable
 fun TasksScreen(
-    navController: NavHostController = rememberNavController(),
+    navController: NavHostController,
     onAddNewTodoButtonClick: () -> Unit = {},
     onTodoClick: (todoId: String) -> Unit = {},
 ) {
@@ -59,7 +59,9 @@ fun TasksScreen(
 @Composable
 fun TasksScreenPreview() {
     ToDoTheme(dynamicColor = false) {
-        TasksScreen()
+        TasksScreen(
+            navController = rememberNavController()
+        )
     }
 }
 
@@ -67,6 +69,8 @@ fun TasksScreenPreview() {
 @Composable
 fun TasksScreenPreviewDark() {
     ToDoTheme(dynamicColor = false) {
-        TasksScreen()
+        TasksScreen(
+            navController = rememberNavController()
+        )
     }
 }

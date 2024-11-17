@@ -13,18 +13,18 @@ class ConnectivityRepository @Inject constructor(@ApplicationContext private val
 
     private val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
 
-    private val _isConnected = MutableStateFlow(false)
-    val isConnected: StateFlow<Boolean> = _isConnected
+    private val _isConnectedFlow = MutableStateFlow(false)
+    val isConnectedFlow: StateFlow<Boolean> = _isConnectedFlow
 
     private var networkCallback: ConnectivityManager.NetworkCallback? = null
     fun register() {
         networkCallback = object : ConnectivityManager.NetworkCallback() {
             override fun onAvailable(network: Network) {
-                _isConnected.value = true
+                _isConnectedFlow.value = true
             }
 
             override fun onLost(network: Network) {
-                _isConnected.value = false
+                _isConnectedFlow.value = false
             }
         }
         networkCallback?.let {
@@ -40,7 +40,6 @@ class ConnectivityRepository @Inject constructor(@ApplicationContext private val
     }
 
     fun isNetworkAvailable(): Boolean {
-        val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val activeNetwork = connectivityManager.activeNetwork
         val networkCapabilities = connectivityManager.getNetworkCapabilities(activeNetwork)
         return networkCapabilities?.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) == true ||

@@ -1,7 +1,6 @@
 package com.joerakhimov.todo.ui.screens.tasks
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.joerakhimov.todo.data.repository.ConnectivityRepository
 import com.joerakhimov.todo.ui.model.TodoItem
@@ -78,7 +77,7 @@ class TasksViewModel @Inject constructor(
     private suspend fun observeConnectivity() {
         viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler){
             connectivityRepository.register()
-            connectivityRepository.isConnected.collect { isConnected ->
+            connectivityRepository.isConnectedFlow.collect { isConnected ->
                 if(isConnected){
                     if(state.value is State.Error){
                         fetchTodoItems()

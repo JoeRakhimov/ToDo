@@ -23,9 +23,6 @@ data class TodoItemDto(
 	@field:SerializedName("created_at")
 	val createdAt: Long,
 
-//	@field:SerializedName("files")
-//	val files: Any? = null,
-
 	@field:SerializedName("changed_at")
 	val changedAt: Long? = null,
 
