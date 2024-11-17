@@ -1,19 +1,11 @@
 package com.joerakhimov.todo.ui.screens.task
 
-import android.content.Context
 import android.content.res.Configuration
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.joerakhimov.todo.ui.navigation.DEFAULT_TODO_ID
-import com.joerakhimov.todo.data.repository.ConnectivityRepository
-import com.joerakhimov.todo.data.source.api.ApiServiceProvider
-import com.joerakhimov.todo.data.source.db.TodoDatabase
-import com.joerakhimov.todo.data.repository.TodoItemsRepository
-import com.joerakhimov.todo.data.source.util.ExceptionMessageUtil
-import com.joerakhimov.todo.ui.navigation.PREFERENCES_NAME
 import com.joerakhimov.todo.ui.common.State
 import com.joerakhimov.todo.ui.common.ErrorView
 import com.joerakhimov.todo.ui.common.ProgressView
@@ -27,24 +19,10 @@ sealed class TaskScreenMode {
 @Composable
 fun TaskScreen(
     todoId: String = DEFAULT_TODO_ID,
-    repository: TodoItemsRepository = TodoItemsRepository(
-        ApiServiceProvider.provideTodoApi(LocalContext.current),
-        TodoDatabase.getDatabase(LocalContext.current).todoItemDao(),
-        ConnectivityRepository(LocalContext.current),
-        LocalContext.current.getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE)
-    ),
-    connectivity: ConnectivityRepository = ConnectivityRepository(LocalContext.current),
-    exceptionMessageUtil: ExceptionMessageUtil = ExceptionMessageUtil(LocalContext.current),
-    viewModel: TaskViewModel = viewModel<TaskViewModel>(
-        factory = TaskViewModelFactory(
-            repository,
-            connectivity,
-            exceptionMessageUtil,
-            todoId
-        )
-    ),
     onExit: () -> Unit = {}
 ) {
+
+    val viewModel: TaskViewModel = hiltViewModel()
 
     val state = viewModel.todoItemState.collectAsState().value
 

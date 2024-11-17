@@ -9,11 +9,12 @@ import com.joerakhimov.todo.data.source.api.toTodoItemDto
 import com.joerakhimov.todo.data.source.db.TodoItemDao
 import com.joerakhimov.todo.ui.workmanager.UpdateTodoItemsWorker
 import java.io.IOException
+import javax.inject.Inject
 
 const val KEY_REVISION = "X-Last-Known-Revision"
 const val KEY_TODO_ITEMS_UP_TO_DATE = "todo_items_up_to_date"
 
-class TodoItemsRepository(
+class TodoItemsRepository @Inject constructor(
     private val todoApi: TodoApi,
     private val todoItemDao: TodoItemDao,
     private val connectivity: ConnectivityRepository,

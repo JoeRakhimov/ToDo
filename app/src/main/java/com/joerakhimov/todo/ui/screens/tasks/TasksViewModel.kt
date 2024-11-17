@@ -9,6 +9,7 @@ import com.joerakhimov.todo.data.repository.TodoItemsRepository
 import com.joerakhimov.todo.data.source.util.ExceptionMessageUtil
 import com.joerakhimov.todo.ui.common.SnackbarMessage
 import com.joerakhimov.todo.ui.common.State
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -18,8 +19,10 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.util.Date
+import javax.inject.Inject
 
-class TasksViewModel(
+@HiltViewModel
+class TasksViewModel @Inject constructor(
     private val todoItemsRepository: TodoItemsRepository,
     private val connectivityRepository: ConnectivityRepository,
     private val exceptionMessageUtil: ExceptionMessageUtil
@@ -128,17 +131,4 @@ class TasksViewModel(
         connectivityRepository.unregister()
     }
 
-}
-
-class TasksViewModelFactory(
-    private val todoItemsRepository: TodoItemsRepository,
-    private val connectivityRepository: ConnectivityRepository,
-    private val exceptionMessageUtil: ExceptionMessageUtil
-) : ViewModelProvider.Factory {
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(TasksViewModel::class.java)) {
-            return TasksViewModel(todoItemsRepository, connectivityRepository, exceptionMessageUtil) as T
-        }
-        throw IllegalArgumentException("Unknown ViewModel class")
-    }
 }

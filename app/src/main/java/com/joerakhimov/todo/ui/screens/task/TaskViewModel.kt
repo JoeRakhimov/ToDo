@@ -1,7 +1,7 @@
 package com.joerakhimov.todo.ui.screens.task
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.joerakhimov.todo.data.repository.ConnectivityRepository
 import com.joerakhimov.todo.ui.model.Importance
@@ -11,6 +11,8 @@ import com.joerakhimov.todo.data.source.util.ExceptionMessageUtil
 import com.joerakhimov.todo.ui.common.SnackbarMessage
 import com.joerakhimov.todo.ui.navigation.DEFAULT_TODO_ID
 import com.joerakhimov.todo.ui.common.State
+import com.joerakhimov.todo.ui.navigation.KEY_TODO_ID
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -22,13 +24,17 @@ import kotlinx.coroutines.launch
 import java.io.IOException
 import java.util.Date
 import java.util.UUID
+import javax.inject.Inject
 
-class TaskViewModel(
+@HiltViewModel
+class TaskViewModel @Inject constructor(
     private val todoItemsRepository: TodoItemsRepository,
     private val connectivityRepository: ConnectivityRepository,
     private val exceptionMessageUtil: ExceptionMessageUtil,
-    private val todoItemId: String
+    savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
+
+    private val todoItemId: String = savedStateHandle[KEY_TODO_ID] ?: DEFAULT_TODO_ID
 
     private val _todoItemState = MutableStateFlow<State<TodoItem>>(
         State.Success(
@@ -186,18 +192,4 @@ class TaskViewModel(
         connectivityRepository.unregister()
     }
 
-}
-
-class TaskViewModelFactory(
-    private val todoItemsRepository: TodoItemsRepository,
-    private val connectivityRepository: ConnectivityRepository,
-    private val exceptionMessageUtil: ExceptionMessageUtil,
-    private val todoItemId: String,
-) : ViewModelProvider.Factory {
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(TaskViewModel::class.java)) {
-            return TaskViewModel(todoItemsRepository, connectivityRepository, exceptionMessageUtil, todoItemId) as T
-        }
-        throw IllegalArgumentException("Unknown ViewModel class")
-    }
 }

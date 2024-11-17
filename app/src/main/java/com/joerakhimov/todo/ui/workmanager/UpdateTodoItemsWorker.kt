@@ -8,18 +8,20 @@ import androidx.work.NetworkType
 import androidx.work.PeriodicWorkRequest
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
-import com.joerakhimov.todo.data.source.api.ApiServiceProvider
-import com.joerakhimov.todo.data.source.db.TodoDatabase
-import com.joerakhimov.todo.data.repository.ConnectivityRepository
 import com.joerakhimov.todo.data.repository.TodoItemsRepository
-import com.joerakhimov.todo.ui.navigation.PREFERENCES_NAME
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedInject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.util.concurrent.TimeUnit
 
 const val UPDATE_TODO_ITEMS_WORK_NAME = "UPDATE_TODO_ITEMS_WORK_NAME"
 
-class UpdateTodoItemsWorker(private val appContext: Context, workerParams: WorkerParameters) :
+class UpdateTodoItemsWorker @AssistedInject constructor(
+    @Assisted private val appContext: Context,
+    @Assisted private val workerParams: WorkerParameters,
+    private val todoItemsRepository: TodoItemsRepository
+) :
     CoroutineWorker(appContext, workerParams) {
 
     companion object {
@@ -43,25 +45,13 @@ class UpdateTodoItemsWorker(private val appContext: Context, workerParams: Worke
 
     override suspend fun doWork(): Result {
         return try {
-            // Your data updating logic here
-            updateData()
-            // Return success after the task completes
+            // Use the injected repository to update data
+            withContext(Dispatchers.IO) {
+                todoItemsRepository.getTodoItems()
+            }
             Result.success()
         } catch (e: Exception) {
-            // Handle failure
             Result.failure()
-        }
-    }
-
-    private suspend fun updateData() {
-        val todoApi = ApiServiceProvider.provideTodoApi(appContext)
-        val dao = TodoDatabase.getDatabase(appContext).todoItemDao()
-        val connectivityRepository = ConnectivityRepository(appContext)
-        val preferences = appContext.getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE)
-        val todoItemsRepository =
-            TodoItemsRepository(todoApi, dao, connectivityRepository, preferences)
-        withContext(Dispatchers.IO) {
-            todoItemsRepository.getTodoItems()
         }
     }
 
