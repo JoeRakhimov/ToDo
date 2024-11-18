@@ -19,10 +19,14 @@ import androidx.compose.ui.unit.dp
 import com.joerakhimov.todo.R
 import com.joerakhimov.todo.ui.model.TodoItem
 
+data class TodoListState(
+    val todoList: List<TodoItem>,
+    val showCompletedTodoList: Boolean,
+)
+
 @Composable
 fun TaskList(
-    todoList: List<TodoItem>,
-    showCompletedTodoList: Boolean,
+    todoListState: TodoListState,
     onTodoClick: (todoId: String) -> Unit,
     paddingValues: PaddingValues,
     onAddNewTodoButtonClick: () -> Unit,
@@ -40,7 +44,7 @@ fun TaskList(
             item { Spacer(modifier = Modifier.padding(top = 16.dp)) }
 
             val filteredItems =
-                if (showCompletedTodoList) todoList else todoList.filter { !it.done }
+                if (todoListState.showCompletedTodoList) todoListState.todoList else todoListState.todoList.filter { !it.done }
             items(filteredItems) { item ->
                 TodoItemView(
                     todoItem = item,

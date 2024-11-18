@@ -60,8 +60,10 @@ fun TasksScreenContent(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
     ) { paddingValues ->
         TaskList(
-            todoList = todoItems,
-            showCompletedTodoList = areCompletedTodosAreShown,
+            todoListState = TodoListState(
+                todoList = todoItems,
+                showCompletedTodoList = areCompletedTodosAreShown
+            ),
             onTodoClick = onTodoClick,
             paddingValues = paddingValues,
             onAddNewTodoButtonClick = onAddNewTodoButtonClick,

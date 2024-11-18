@@ -6,6 +6,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.flowWithLifecycle
 import com.joerakhimov.todo.ui.theme.ToDoTheme
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
@@ -30,7 +33,12 @@ fun TasksScreen(
         }
     }
 
-    val state = viewModel.state.collectAsState().value
+    val lifecycle = LocalLifecycleOwner.current.lifecycle
+    val lifecycleAwareState = viewModel.state
+        .flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
+        .collectAsState(initial = State.Loading)
+
+    val state = lifecycleAwareState.value
 
     when (state) {
         is State.Loading -> {
