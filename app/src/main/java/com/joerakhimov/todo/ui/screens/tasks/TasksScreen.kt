@@ -3,12 +3,14 @@ package com.joerakhimov.todo.ui.screens.tasks
 import android.content.res.Configuration
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.joerakhimov.todo.ui.theme.ToDoTheme
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.joerakhimov.todo.app.TodoApp
 import com.joerakhimov.todo.ui.navigation.Screen
 import com.joerakhimov.todo.ui.common.State
 import com.joerakhimov.todo.ui.common.ErrorView
@@ -21,7 +23,9 @@ fun TasksScreen(
     onTodoClick: (todoId: String) -> Unit = {},
 ) {
 
-    val viewModel: TasksViewModel = hiltViewModel()
+    val appComponent = (LocalContext.current.applicationContext as TodoApp).appComponent
+    val viewModelFactory = appComponent.provideTasksViewModelFactory()
+    val viewModel: TasksViewModel = viewModel(factory = viewModelFactory)
 
     LaunchedEffect(navController.currentBackStackEntry) {
         val currentRoute = navController.currentBackStackEntry?.destination?.route

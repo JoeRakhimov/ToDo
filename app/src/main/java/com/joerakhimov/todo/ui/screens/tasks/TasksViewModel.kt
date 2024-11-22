@@ -1,6 +1,7 @@
 package com.joerakhimov.todo.ui.screens.tasks
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.joerakhimov.todo.data.repository.ConnectivityRepository
 import com.joerakhimov.todo.ui.model.TodoItem
@@ -8,7 +9,6 @@ import com.joerakhimov.todo.data.repository.TodoItemsRepository
 import com.joerakhimov.todo.data.source.util.ExceptionMessageUtil
 import com.joerakhimov.todo.ui.common.SnackbarMessage
 import com.joerakhimov.todo.ui.common.State
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -20,7 +20,6 @@ import kotlinx.coroutines.launch
 import java.util.Date
 import javax.inject.Inject
 
-@HiltViewModel
 class TasksViewModel @Inject constructor(
     private val todoItemsRepository: TodoItemsRepository,
     private val connectivityRepository: ConnectivityRepository,
@@ -128,6 +127,20 @@ class TasksViewModel @Inject constructor(
     override fun onCleared() {
         super.onCleared()
         connectivityRepository.unregister()
+    }
+
+}
+
+class TasksViewModelFactory @Inject constructor(
+    private val todoItemsRepository: TodoItemsRepository,
+    private val connectivityRepository: ConnectivityRepository,
+    private val exceptionMessageUtil: ExceptionMessageUtil
+) : ViewModelProvider.Factory {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(TasksViewModel::class.java)) {
+            return TasksViewModel(todoItemsRepository, connectivityRepository, exceptionMessageUtil) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class")
     }
 
 }
