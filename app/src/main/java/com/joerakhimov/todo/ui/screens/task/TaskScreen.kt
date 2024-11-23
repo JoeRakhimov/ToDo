@@ -3,8 +3,10 @@ package com.joerakhimov.todo.ui.screens.task
 import android.content.res.Configuration
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.joerakhimov.todo.app.TodoApp
 import com.joerakhimov.todo.ui.navigation.DEFAULT_TODO_ID
 import com.joerakhimov.todo.ui.common.State
 import com.joerakhimov.todo.ui.common.ErrorView
@@ -19,11 +21,16 @@ sealed class TaskScreenMode {
 @Composable
 fun TaskScreen(
     todoId: String = DEFAULT_TODO_ID,
-    onExit: () -> Unit = {}
+    onExit: () -> Unit = {},
+    taskComponent: TaskComponent =
+        (LocalContext.current.applicationContext as TodoApp)
+            .appComponent
+            .provideTaskComponentFactory()
+            .create(todoId)
 ) {
 
-    val viewModel: TaskViewModel = hiltViewModel()
-
+    val viewModelFactory = taskComponent.provideTaskViewModelFactory()
+    val viewModel: TaskViewModel = viewModel(factory = viewModelFactory)
     val state = viewModel.todoItemState.collectAsState().value
 
     when (state) {

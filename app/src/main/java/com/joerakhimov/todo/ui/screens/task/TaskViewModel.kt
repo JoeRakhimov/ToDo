@@ -1,7 +1,7 @@
 package com.joerakhimov.todo.ui.screens.task
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.joerakhimov.todo.data.repository.ConnectivityRepository
 import com.joerakhimov.todo.ui.model.Importance
@@ -11,8 +11,9 @@ import com.joerakhimov.todo.data.source.util.ExceptionMessageUtil
 import com.joerakhimov.todo.ui.common.SnackbarMessage
 import com.joerakhimov.todo.ui.navigation.DEFAULT_TODO_ID
 import com.joerakhimov.todo.ui.common.State
-import com.joerakhimov.todo.ui.navigation.KEY_TODO_ID
-import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -26,15 +27,12 @@ import java.util.Date
 import java.util.UUID
 import javax.inject.Inject
 
-@HiltViewModel
-class TaskViewModel @Inject constructor(
+class TaskViewModel @AssistedInject constructor(
     private val todoItemsRepository: TodoItemsRepository,
     private val connectivityRepository: ConnectivityRepository,
     private val exceptionMessageUtil: ExceptionMessageUtil,
-    savedStateHandle: SavedStateHandle,
+    @Assisted private val todoItemId: String
 ) : ViewModel() {
-
-    private val todoItemId: String = savedStateHandle[KEY_TODO_ID] ?: DEFAULT_TODO_ID
 
     private val _todoItemState = MutableStateFlow<State<TodoItem>>(State.Loading)
     val todoItemState: StateFlow<State<TodoItem>> = _todoItemState
@@ -47,12 +45,14 @@ class TaskViewModel @Inject constructor(
 
     private val coroutineExceptionHandler = CoroutineExceptionHandler { _, exception ->
         viewModelScope.launch(Dispatchers.IO) {
-            _snackbarMessage.value = SnackbarMessage.TextMessage(exceptionMessageUtil.getHumanReadableErrorMessage(exception))
+            _snackbarMessage.value = SnackbarMessage.TextMessage(
+                exceptionMessageUtil.getHumanReadableErrorMessage(exception)
+            )
         }
     }
 
     init {
-        if(todoItemId == DEFAULT_TODO_ID){
+        if (todoItemId == DEFAULT_TODO_ID) {
             _todoItemState.value = State.Success(
                 TodoItem(
                     id = generateUUID(),
@@ -73,7 +73,8 @@ class TaskViewModel @Inject constructor(
     private var fetchTodoItemJob: Job? = null
     fun fetchTodoItem() {
         _todoItemState.value = State.Loading
-        fetchTodoItemJob?.takeIf { it.isActive }?.cancel() // to cancel previous job to avoid automatic retry after successful manual retry
+        fetchTodoItemJob?.takeIf { it.isActive }
+            ?.cancel() // to cancel previous job to avoid automatic retry after successful manual retry
         fetchTodoItemJob = viewModelScope.launch(Dispatchers.IO) {
             try {
                 val todoItem = todoItemsRepository.getTodoItem(todoItemId)
@@ -83,7 +84,11 @@ class TaskViewModel @Inject constructor(
                 var secondsBeforeRetry = 30
                 repeat(secondsBeforeRetry) {
                     _todoItemState.value =
-                        State.Error("${exceptionMessageUtil.getHumanReadableErrorMessage(e)}.", e, secondsBeforeRetry)
+                        State.Error(
+                            "${exceptionMessageUtil.getHumanReadableErrorMessage(e)}.",
+                            e,
+                            secondsBeforeRetry
+                        )
                     delay(1000)
                     secondsBeforeRetry--
                 }
@@ -100,8 +105,8 @@ class TaskViewModel @Inject constructor(
             connectivityRepository.isConnectedFlow.collect { isConnected ->
                 if (isConnected) {
                     val state = todoItemState.value
-                    if(state is State.Error){
-                        if(state.exception is IOException){
+                    if (state is State.Error) {
+                        if (state.exception is IOException) {
                             fetchTodoItem()
                         }
                     }
@@ -182,7 +187,7 @@ class TaskViewModel @Inject constructor(
         return UUID.randomUUID().toString()
     }
 
-    fun clearSnackbarMessage(){
+    fun clearSnackbarMessage() {
         _snackbarMessage.value = null
     }
 
@@ -192,4 +197,22 @@ class TaskViewModel @Inject constructor(
         connectivityRepository.unregister()
     }
 
+}
+
+@AssistedFactory
+interface AssistedTaskViewModelFactory {
+    fun create(todoId: String): TaskViewModel
+}
+
+class TaskViewModelFactory @Inject constructor(
+    private val assistedFactory: AssistedTaskViewModelFactory,
+    private val todoId: String
+) : ViewModelProvider.Factory {
+    @Suppress("UNCHECKED_CAST")
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(TaskViewModel::class.java)) {
+            return assistedFactory.create(todoId) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class")
+    }
 }

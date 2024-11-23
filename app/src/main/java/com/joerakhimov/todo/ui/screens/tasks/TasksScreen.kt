@@ -3,12 +3,14 @@ package com.joerakhimov.todo.ui.screens.tasks
 import android.content.res.Configuration
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.joerakhimov.todo.ui.theme.ToDoTheme
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.joerakhimov.todo.app.TodoApp
 import com.joerakhimov.todo.ui.navigation.Screen
 import com.joerakhimov.todo.ui.common.State
 import com.joerakhimov.todo.ui.common.ErrorView
@@ -19,9 +21,14 @@ fun TasksScreen(
     navController: NavHostController,
     onAddNewTodoButtonClick: () -> Unit = {},
     onTodoClick: (todoId: String) -> Unit = {},
+    tasksComponent: TasksComponent =
+        (LocalContext.current.applicationContext as TodoApp)
+            .appComponent
+            .providesTaskComponent()
 ) {
 
-    val viewModel: TasksViewModel = hiltViewModel()
+    val viewModelFactory = tasksComponent.provideTasksViewModelFactory()
+    val viewModel: TasksViewModel = viewModel(factory = viewModelFactory)
 
     LaunchedEffect(navController.currentBackStackEntry) {
         val currentRoute = navController.currentBackStackEntry?.destination?.route
@@ -30,7 +37,7 @@ fun TasksScreen(
         }
     }
 
-    val state = viewModel.state.collectAsState().value
+    val state = viewModel.state.collectAsStateWithLifecycle().value
 
     when (state) {
         is State.Loading -> {

@@ -1,0 +1,138 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues></ManuallySuppressedIssues>
+  <CurrentIssues>
+    <ID>ExplicitItLambdaParameter:TaskScreenContent.kt${ it -&gt; scope.launch { val message = when(it){ is SnackbarMessage.TextMessage -&gt; it.message is SnackbarMessage.ShowingCachedData -&gt; context.getString(R.string.showing_cached_data) is SnackbarMessage.TaskDescriptionCannotBeEmpty -&gt; context.getString(R.string.task_description_cannot_be_empty) } snackbarHostState.showSnackbar(message) viewModel.clearSnackbarMessage() } }</ID>
+    <ID>ExplicitItLambdaParameter:TasksScreenContent.kt${ it -&gt; scope.launch { val message = when(it){ is SnackbarMessage.TextMessage -&gt; it.message is SnackbarMessage.ShowingCachedData -&gt; context.getString(R.string.showing_cached_data) is SnackbarMessage.TaskDescriptionCannotBeEmpty -&gt; context.getString(R.string.task_description_cannot_be_empty) } snackbarHostState.showSnackbar(message) viewModel.clearSnackbarMessage() } }</ID>
+    <ID>FunctionNaming:AddTodoButton.kt$@Composable fun AddTodoButton(onClick: () -&gt; Unit)</ID>
+    <ID>FunctionNaming:AppNavigation.kt$@Composable fun AppNavigation()</ID>
+    <ID>FunctionNaming:CloseIcon.kt$@Composable fun CloseIcon()</ID>
+    <ID>FunctionNaming:DeadlineSection.kt$@Composable fun DeadlineSection( todo: TodoItem, onDeadlineDateChange: (Date?) -&gt; Unit )</ID>
+    <ID>FunctionNaming:DeadlineSection.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable private fun DeadlineDatePickerDialog( todo: TodoItem, deadlineEnabled: MutableState&lt;Boolean&gt;, showDatePickerDialog: MutableState&lt;Boolean&gt;, onDeadlineDateChange: (Date?) -&gt; Unit )</ID>
+    <ID>FunctionNaming:DeleteSection.kt$@Composable fun DeleteSection( screenMode: TaskScreenMode, todo: TodoItem, onClick: (TodoItem) -&gt; Unit )</ID>
+    <ID>FunctionNaming:ErrorView.kt$@Composable fun ErrorView( message: String, secondsBeforeRetry: Int? = null, onRetry: () -&gt; Unit )</ID>
+    <ID>FunctionNaming:ImportanceSection.kt$@Composable fun ImportanceSection( todo: TodoItem, onImportanceChange: (Importance) -&gt; Unit )</ID>
+    <ID>FunctionNaming:ImportanceSection.kt$@Composable private fun ImportanceDropdownMenu( expanded: Boolean, onDismissRequest: () -&gt; Unit, onImportanceSelected: (Importance) -&gt; Unit )</ID>
+    <ID>FunctionNaming:ProgressView.kt$@Composable fun ProgressView()</ID>
+    <ID>FunctionNaming:SaveAction.kt$@Composable fun SaveAction( todo: TodoItem, onSave: (todo: TodoItem) -&gt; Unit, )</ID>
+    <ID>FunctionNaming:SectionDivider.kt$@Composable fun SectionDivider()</ID>
+    <ID>FunctionNaming:TaskDescriptionField.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun TaskDescriptionField(todo: TodoItem, onValueChange: (String) -&gt; Unit)</ID>
+    <ID>FunctionNaming:TaskDetailsContent.kt$@Composable fun TaskDetailsContent( todo: TodoItem, screenMode: TaskScreenMode, onDescriptionChange: (String) -&gt; Unit, onImportanceChange: (Importance) -&gt; Unit, onDeadlineDateChange: (Date?) -&gt; Unit, onDeleteButtonClick: (TodoItem) -&gt; Unit, padding: PaddingValues )</ID>
+    <ID>FunctionNaming:TaskList.kt$@Composable fun TaskList( todoList: List&lt;TodoItem&gt;, showCompletedTodoList: Boolean, onTodoClick: (todoId: String) -&gt; Unit, paddingValues: PaddingValues, onAddNewTodoButtonClick: () -&gt; Unit, onTodoCompletedChange: (todo: TodoItem) -&gt; Unit )</ID>
+    <ID>FunctionNaming:TaskScreen.kt$@Composable fun TaskScreen( todoId: String = DEFAULT_TODO_ID, onExit: () -&gt; Unit = {} )</ID>
+    <ID>FunctionNaming:TaskScreen.kt$@Preview(showBackground = true) @Composable fun TaskScreenPreview()</ID>
+    <ID>FunctionNaming:TaskScreen.kt$@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES) @Composable fun TaskScreenPreviewDark()</ID>
+    <ID>FunctionNaming:TaskScreenContent.kt$@Composable @OptIn(ExperimentalMaterial3Api::class) fun TaskScreenContent( todoId: String, todo: TodoItem, viewModel: TaskViewModel, onExit: () -&gt; Unit )</ID>
+    <ID>FunctionNaming:TasksScreen.kt$@Composable fun TasksScreen( navController: NavHostController, onAddNewTodoButtonClick: () -&gt; Unit = {}, onTodoClick: (todoId: String) -&gt; Unit = {}, )</ID>
+    <ID>FunctionNaming:TasksScreen.kt$@Preview(showBackground = true) @Composable fun TasksScreenPreview()</ID>
+    <ID>FunctionNaming:TasksScreen.kt$@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES) @Composable fun TasksScreenPreviewDark()</ID>
+    <ID>FunctionNaming:TasksScreenContent.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun TasksScreenContent( todoItems: List&lt;TodoItem&gt;, onAddNewTodoButtonClick: () -&gt; Unit, onTodoClick: (todoId: String) -&gt; Unit, viewModel: TasksViewModel )</ID>
+    <ID>FunctionNaming:TasksTopAppBar.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun TasksTopAppBar( topAppBarScrollBehavior: TopAppBarScrollBehavior, todoItems: List&lt;TodoItem&gt;, showCompletedTasks: Boolean, onToggleShowCompleted: () -&gt; Unit )</ID>
+    <ID>FunctionNaming:Theme.kt$@Composable fun ToDoTheme( darkTheme: Boolean = isSystemInDarkTheme(), // Dynamic color is available on Android 12+ dynamicColor: Boolean = false, content: @Composable () -&gt; Unit )</ID>
+    <ID>FunctionNaming:TodoItemView.kt$@Composable fun TodoItemView( todoItem: TodoItem, onClick: (todoId: String) -&gt; Unit = {}, onCheckboxCheckedChange: (TodoItem) -&gt; Unit = {} )</ID>
+    <ID>FunctionNaming:TodoItemView.kt$@Preview(showBackground = true) @Composable fun PreviewTodoItemView1()</ID>
+    <ID>FunctionNaming:TodoItemView.kt$@Preview(showBackground = true) @Composable fun PreviewTodoItemView2()</ID>
+    <ID>FunctionNaming:TodoItemView.kt$@Preview(showBackground = true) @Composable fun PreviewTodoItemView3()</ID>
+    <ID>FunctionNaming:TodoItemView.kt$@Preview(showBackground = true) @Composable fun PreviewTodoItemView4()</ID>
+    <ID>FunctionNaming:TodoItemView.kt$@Preview(showBackground = true) @Composable fun PreviewTodoItemView5()</ID>
+    <ID>FunctionNaming:TodoItemView.kt$@Preview(showBackground = true) @Composable fun PreviewTodoItemView6()</ID>
+    <ID>FunctionNaming:TodoItemView.kt$@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES) @Composable fun PreviewTodoItemView1Dark()</ID>
+    <ID>FunctionNaming:TodoItemView.kt$@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES) @Composable fun PreviewTodoItemView2Dark()</ID>
+    <ID>FunctionNaming:TodoItemView.kt$@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES) @Composable fun PreviewTodoItemView3Dark()</ID>
+    <ID>FunctionNaming:TodoItemView.kt$@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES) @Composable fun PreviewTodoItemView4Dark()</ID>
+    <ID>FunctionNaming:TodoItemView.kt$@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES) @Composable fun PreviewTodoItemView5Dark()</ID>
+    <ID>FunctionNaming:TodoItemView.kt$@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES) @Composable fun PreviewTodoItemView6Dark()</ID>
+    <ID>LongMethod:TaskScreenContent.kt$@Composable @OptIn(ExperimentalMaterial3Api::class) fun TaskScreenContent( todoId: String, todo: TodoItem, viewModel: TaskViewModel, onExit: () -&gt; Unit )</ID>
+    <ID>LongParameterList:TaskDetailsContent.kt$( todo: TodoItem, screenMode: TaskScreenMode, onDescriptionChange: (String) -&gt; Unit, onImportanceChange: (Importance) -&gt; Unit, onDeadlineDateChange: (Date?) -&gt; Unit, onDeleteButtonClick: (TodoItem) -&gt; Unit, padding: PaddingValues )</ID>
+    <ID>LongParameterList:TaskList.kt$( todoList: List&lt;TodoItem&gt;, showCompletedTodoList: Boolean, onTodoClick: (todoId: String) -&gt; Unit, paddingValues: PaddingValues, onAddNewTodoButtonClick: () -&gt; Unit, onTodoCompletedChange: (todo: TodoItem) -&gt; Unit )</ID>
+    <ID>MagicNumber:Color.kt$0x0F000000</ID>
+    <ID>MagicNumber:Color.kt$0x26000000</ID>
+    <ID>MagicNumber:Color.kt$0x26FFFFFF</ID>
+    <ID>MagicNumber:Color.kt$0x33000000</ID>
+    <ID>MagicNumber:Color.kt$0x33FFFFFF</ID>
+    <ID>MagicNumber:Color.kt$0x4D000000</ID>
+    <ID>MagicNumber:Color.kt$0x52000000</ID>
+    <ID>MagicNumber:Color.kt$0x66FFFFFF</ID>
+    <ID>MagicNumber:Color.kt$0x99000000</ID>
+    <ID>MagicNumber:Color.kt$0x99FFFFFF</ID>
+    <ID>MagicNumber:Color.kt$0xFF000000</ID>
+    <ID>MagicNumber:Color.kt$0xFF007AFF</ID>
+    <ID>MagicNumber:Color.kt$0xFF0A84FF</ID>
+    <ID>MagicNumber:Color.kt$0xFF161618</ID>
+    <ID>MagicNumber:Color.kt$0xFF252528</ID>
+    <ID>MagicNumber:Color.kt$0xFF32D74B</ID>
+    <ID>MagicNumber:Color.kt$0xFF34C759</ID>
+    <ID>MagicNumber:Color.kt$0xFF3C3C3F</ID>
+    <ID>MagicNumber:Color.kt$0xFF48484A</ID>
+    <ID>MagicNumber:Color.kt$0xFF8E8E93</ID>
+    <ID>MagicNumber:Color.kt$0xFFD1D1D6</ID>
+    <ID>MagicNumber:Color.kt$0xFFF7F6F2</ID>
+    <ID>MagicNumber:Color.kt$0xFFFF3B30</ID>
+    <ID>MagicNumber:Color.kt$0xFFFF453A</ID>
+    <ID>MagicNumber:Color.kt$0xFFFFFFFF</ID>
+    <ID>MagicNumber:TaskViewModel.kt$TaskViewModel$1000</ID>
+    <ID>MagicNumber:TaskViewModel.kt$TaskViewModel$30</ID>
+    <ID>MagicNumber:TasksViewModel.kt$TasksViewModel$1000</ID>
+    <ID>MagicNumber:TasksViewModel.kt$TasksViewModel$30</ID>
+    <ID>MagicNumber:UpdateTodoItemsWorker.kt$UpdateTodoItemsWorker.Companion$8</ID>
+    <ID>MatchingDeclarationName:TaskScreen.kt$TaskScreenMode</ID>
+    <ID>MaxLineLength:TaskScreenContent.kt$is SnackbarMessage.TaskDescriptionCannotBeEmpty -&gt; context.getString(R.string.task_description_cannot_be_empty)</ID>
+    <ID>MaxLineLength:TaskViewModel.kt$TaskViewModel$_snackbarMessage.value = SnackbarMessage.TextMessage(exceptionMessageUtil.getHumanReadableErrorMessage(exception))</ID>
+    <ID>MaxLineLength:TaskViewModel.kt$TaskViewModel$fetchTodoItemJob?.takeIf { it.isActive }?.cancel()</ID>
+    <ID>MaxLineLength:TasksScreenContent.kt$is SnackbarMessage.TaskDescriptionCannotBeEmpty -&gt; context.getString(R.string.task_description_cannot_be_empty)</ID>
+    <ID>MaxLineLength:TasksTopAppBar.kt$imageVector = if (showCompletedTasks) Icons.Filled.VisibilityOff else Icons.Filled.Visibility</ID>
+    <ID>MaxLineLength:TasksViewModel.kt$TasksViewModel$_state.value = State.Error("${exceptionMessageUtil.getHumanReadableErrorMessage(e)}.", e, secondsBeforeRetry)</ID>
+    <ID>MaxLineLength:TasksViewModel.kt$TasksViewModel$_state.value = State.Error("${exceptionMessageUtil.getHumanReadableErrorMessage(exception)}.", exception, secondsBeforeRetry)</ID>
+    <ID>MaxLineLength:TodoItemView.kt$"Купить что-то, где-то, зачем-то, но зачем не очень понятно, но точно чтобы показать как обрезается текст когда текст слишком длинный"</ID>
+    <ID>MaxLineLength:TodoItemView.kt$color = if (todoItem.done) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onBackground</ID>
+    <ID>NewLineAtEndOfFile:AddTodoButton.kt$com.joerakhimov.todo.ui.screens.tasks.AddTodoButton.kt</ID>
+    <ID>NewLineAtEndOfFile:ApiModule.kt$com.joerakhimov.todo.data.source.api.ApiModule.kt</ID>
+    <ID>NewLineAtEndOfFile:AppNavigation.kt$com.joerakhimov.todo.ui.navigation.AppNavigation.kt</ID>
+    <ID>NewLineAtEndOfFile:AuthorizationInterceptor.kt$com.joerakhimov.todo.data.source.api.AuthorizationInterceptor.kt</ID>
+    <ID>NewLineAtEndOfFile:CloseIcon.kt$com.joerakhimov.todo.ui.screens.task.CloseIcon.kt</ID>
+    <ID>NewLineAtEndOfFile:Color.kt$com.joerakhimov.todo.ui.theme.Color.kt</ID>
+    <ID>NewLineAtEndOfFile:ConnectivityRepository.kt$com.joerakhimov.todo.data.repository.ConnectivityRepository.kt</ID>
+    <ID>NewLineAtEndOfFile:DatabaseModule.kt$com.joerakhimov.todo.data.source.db.DatabaseModule.kt</ID>
+    <ID>NewLineAtEndOfFile:DeadlineSection.kt$com.joerakhimov.todo.ui.screens.task.DeadlineSection.kt</ID>
+    <ID>NewLineAtEndOfFile:DeleteSection.kt$com.joerakhimov.todo.ui.screens.task.DeleteSection.kt</ID>
+    <ID>NewLineAtEndOfFile:ErrorView.kt$com.joerakhimov.todo.ui.common.ErrorView.kt</ID>
+    <ID>NewLineAtEndOfFile:ExampleUnitTest.kt$com.joerakhimov.todo.ExampleUnitTest.kt</ID>
+    <ID>NewLineAtEndOfFile:ExceptionMessageUtil.kt$com.joerakhimov.todo.data.source.util.ExceptionMessageUtil.kt</ID>
+    <ID>NewLineAtEndOfFile:ImportanceSection.kt$com.joerakhimov.todo.ui.screens.task.ImportanceSection.kt</ID>
+    <ID>NewLineAtEndOfFile:MainActivity.kt$com.joerakhimov.todo.ui.MainActivity.kt</ID>
+    <ID>NewLineAtEndOfFile:PrefsModule.kt$com.joerakhimov.todo.data.source.prefs.PrefsModule.kt</ID>
+    <ID>NewLineAtEndOfFile:ProgressView.kt$com.joerakhimov.todo.ui.common.ProgressView.kt</ID>
+    <ID>NewLineAtEndOfFile:Revision.kt$com.joerakhimov.todo.data.source.api.Revision.kt</ID>
+    <ID>NewLineAtEndOfFile:SaveAction.kt$com.joerakhimov.todo.ui.screens.task.SaveAction.kt</ID>
+    <ID>NewLineAtEndOfFile:SectionDivider.kt$com.joerakhimov.todo.ui.screens.task.SectionDivider.kt</ID>
+    <ID>NewLineAtEndOfFile:SnackbarMessage.kt$com.joerakhimov.todo.ui.common.SnackbarMessage.kt</ID>
+    <ID>NewLineAtEndOfFile:State.kt$com.joerakhimov.todo.ui.common.State.kt</ID>
+    <ID>NewLineAtEndOfFile:TaskDescriptionField.kt$com.joerakhimov.todo.ui.screens.task.TaskDescriptionField.kt</ID>
+    <ID>NewLineAtEndOfFile:TaskDetailsContent.kt$com.joerakhimov.todo.ui.screens.task.TaskDetailsContent.kt</ID>
+    <ID>NewLineAtEndOfFile:TaskList.kt$com.joerakhimov.todo.ui.screens.tasks.TaskList.kt</ID>
+    <ID>NewLineAtEndOfFile:TaskScreen.kt$com.joerakhimov.todo.ui.screens.task.TaskScreen.kt</ID>
+    <ID>NewLineAtEndOfFile:TaskScreenContent.kt$com.joerakhimov.todo.ui.screens.task.TaskScreenContent.kt</ID>
+    <ID>NewLineAtEndOfFile:TaskViewModel.kt$com.joerakhimov.todo.ui.screens.task.TaskViewModel.kt</ID>
+    <ID>NewLineAtEndOfFile:TasksScreen.kt$com.joerakhimov.todo.ui.screens.tasks.TasksScreen.kt</ID>
+    <ID>NewLineAtEndOfFile:TasksScreenContent.kt$com.joerakhimov.todo.ui.screens.tasks.TasksScreenContent.kt</ID>
+    <ID>NewLineAtEndOfFile:TasksTopAppBar.kt$com.joerakhimov.todo.ui.screens.tasks.TasksTopAppBar.kt</ID>
+    <ID>NewLineAtEndOfFile:TasksViewModel.kt$com.joerakhimov.todo.ui.screens.tasks.TasksViewModel.kt</ID>
+    <ID>NewLineAtEndOfFile:Theme.kt$com.joerakhimov.todo.ui.theme.Theme.kt</ID>
+    <ID>NewLineAtEndOfFile:TodoApi.kt$com.joerakhimov.todo.data.source.api.TodoApi.kt</ID>
+    <ID>NewLineAtEndOfFile:TodoApp.kt$com.joerakhimov.todo.app.TodoApp.kt</ID>
+    <ID>NewLineAtEndOfFile:TodoDatabase.kt$com.joerakhimov.todo.data.source.db.TodoDatabase.kt</ID>
+    <ID>NewLineAtEndOfFile:TodoItemDao.kt$com.joerakhimov.todo.data.source.db.TodoItemDao.kt</ID>
+    <ID>NewLineAtEndOfFile:TodoItemDto.kt$com.joerakhimov.todo.data.dto.TodoItemDto.kt</ID>
+    <ID>NewLineAtEndOfFile:TodoItemDtoExtentions.kt$com.joerakhimov.todo.data.source.api.TodoItemDtoExtentions.kt</ID>
+    <ID>NewLineAtEndOfFile:TodoItemsRepository.kt$com.joerakhimov.todo.data.repository.TodoItemsRepository.kt</ID>
+    <ID>NewLineAtEndOfFile:Type.kt$com.joerakhimov.todo.ui.theme.Type.kt</ID>
+    <ID>NewLineAtEndOfFile:UpdateTodoItemsWorker.kt$com.joerakhimov.todo.ui.workmanager.UpdateTodoItemsWorker.kt</ID>
+    <ID>SwallowedException:UpdateTodoItemsWorker.kt$UpdateTodoItemsWorker$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:TaskViewModel.kt$TaskViewModel$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:TasksViewModel.kt$TasksViewModel$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:UpdateTodoItemsWorker.kt$UpdateTodoItemsWorker$e: Exception</ID>
+    <ID>TooManyFunctions:TaskViewModel.kt$TaskViewModel : ViewModel</ID>
+    <ID>TooManyFunctions:TodoItemView.kt$com.joerakhimov.todo.ui.screens.tasks.TodoItemView.kt</ID>
+    <ID>WildcardImport:ExampleUnitTest.kt$import org.junit.Assert.*</ID>
+  </CurrentIssues>
+</SmellBaseline>
