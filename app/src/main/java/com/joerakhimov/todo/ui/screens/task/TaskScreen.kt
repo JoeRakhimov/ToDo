@@ -11,7 +11,6 @@ import com.joerakhimov.todo.ui.navigation.DEFAULT_TODO_ID
 import com.joerakhimov.todo.ui.common.State
 import com.joerakhimov.todo.ui.common.ErrorView
 import com.joerakhimov.todo.ui.common.ProgressView
-import com.joerakhimov.todo.ui.di.TaskComponent
 import com.joerakhimov.todo.ui.theme.ToDoTheme
 
 sealed class TaskScreenMode {

@@ -21,10 +21,13 @@ fun TasksScreen(
     navController: NavHostController,
     onAddNewTodoButtonClick: () -> Unit = {},
     onTodoClick: (todoId: String) -> Unit = {},
+    tasksComponent: TasksComponent =
+        (LocalContext.current.applicationContext as TodoApp)
+            .appComponent
+            .providesTaskComponent()
 ) {
 
-    val appComponent = (LocalContext.current.applicationContext as TodoApp).appComponent
-    val viewModelFactory = appComponent.provideTasksViewModelFactory()
+    val viewModelFactory = tasksComponent.provideTasksViewModelFactory()
     val viewModel: TasksViewModel = viewModel(factory = viewModelFactory)
 
     LaunchedEffect(navController.currentBackStackEntry) {

@@ -1,10 +1,12 @@
-package com.joerakhimov.todo.ui.di
+package com.joerakhimov.todo.ui.screens.task
 
-import com.joerakhimov.todo.ui.screens.task.TaskViewModelFactory
 import dagger.BindsInstance
 import dagger.Subcomponent
 
-@Subcomponent
+@TaskScope
+@Subcomponent(modules = [
+    TaskViewModelModule::class,
+])
 interface TaskComponent {
 
     @Subcomponent.Factory
